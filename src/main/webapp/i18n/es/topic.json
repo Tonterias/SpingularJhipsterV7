@@ -1,0 +1,25 @@
+{
+  "spingularApp": {
+    "topic": {
+      "home": {
+        "title": "Topics",
+        "refreshListLabel": "Refrescar lista",
+        "createLabel": "Crear nuevo Topic",
+        "createOrEditLabel": "Crear o editar Topic",
+        "notFound": "Ningún Topics encontrado"
+      },
+      "created": "Un nuevo Topic ha sido creado con el identificador {{ param }}",
+      "updated": "Un Topic ha sido actualizado con el identificador {{ param }}",
+      "deleted": "Un Topic ha sido eliminado con el identificador {{ param }}",
+      "delete": {
+        "question": "¿Seguro que quiere eliminar Topic {{ id }}?"
+      },
+      "detail": {
+        "title": "Topic"
+      },
+      "id": "ID",
+      "topicName": "Topic Name",
+      "post": "Post"
+    }
+  }
+}

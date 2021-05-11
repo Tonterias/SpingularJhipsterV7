@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.3.xsd">
+    <!--
+        Added the constraints for entity Celeb.
+    -->
+    <changeSet id="20210511094628-2" author="jhipster">
+
+        <addForeignKeyConstraint baseColumnNames="celeb_id"
+                                 baseTableName="rel_celeb__appuser"
+                                 constraintName="fk_rel_celeb__appuser__celeb_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="celeb"/>
+
+        <addForeignKeyConstraint baseColumnNames="appuser_id"
+                                 baseTableName="rel_celeb__appuser"
+                                 constraintName="fk_rel_celeb__appuser__appuser_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="appuser"/>
+    </changeSet>
+</databaseChangeLog>

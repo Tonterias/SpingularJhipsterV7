@@ -1,0 +1,60 @@
+<div class="row justify-content-center">
+  <div class="col-8">
+    <div *ngIf="appuser">
+      <h2 data-cy="appuserDetailsHeading"><span jhiTranslate="spingularApp.appuser.detail.title">Appuser</span></h2>
+
+      <hr />
+
+      <jhi-alert-error></jhi-alert-error>
+
+      <jhi-alert></jhi-alert>
+
+      <dl class="row-md jh-entity-details">
+        <dt><span jhiTranslate="global.field.id">ID</span></dt>
+        <dd>
+          <span>{{ appuser.id }}</span>
+        </dd>
+        <dt><span jhiTranslate="spingularApp.appuser.creationDate">Creation Date</span></dt>
+        <dd>
+          <span>{{ appuser.creationDate | formatMediumDatetime }}</span>
+        </dd>
+        <dt><span jhiTranslate="spingularApp.appuser.bio">Bio</span></dt>
+        <dd>
+          <span>{{ appuser.bio }}</span>
+        </dd>
+        <dt><span jhiTranslate="spingularApp.appuser.facebook">Facebook</span></dt>
+        <dd>
+          <span>{{ appuser.facebook }}</span>
+        </dd>
+        <dt><span jhiTranslate="spingularApp.appuser.twitter">Twitter</span></dt>
+        <dd>
+          <span>{{ appuser.twitter }}</span>
+        </dd>
+        <dt><span jhiTranslate="spingularApp.appuser.linkedin">Linkedin</span></dt>
+        <dd>
+          <span>{{ appuser.linkedin }}</span>
+        </dd>
+        <dt><span jhiTranslate="spingularApp.appuser.instagram">Instagram</span></dt>
+        <dd>
+          <span>{{ appuser.instagram }}</span>
+        </dd>
+        <dt><span jhiTranslate="spingularApp.appuser.birthdate">Birthdate</span></dt>
+        <dd>
+          <span>{{ appuser.birthdate | formatMediumDatetime }}</span>
+        </dd>
+        <dt><span jhiTranslate="spingularApp.appuser.user">User</span></dt>
+        <dd>
+          <span>{{ appuser.user?.id }}</span>
+        </dd>
+      </dl>
+
+      <button type="submit" (click)="previousState()" class="btn btn-info" data-cy="entityDetailsBackButton">
+        <fa-icon icon="arrow-left"></fa-icon>&nbsp;<span jhiTranslate="entity.action.back">Back</span>
+      </button>
+
+      <button type="button" [routerLink]="['/appuser', appuser.id, 'edit']" class="btn btn-primary">
+        <fa-icon icon="pencil-alt"></fa-icon>&nbsp;<span jhiTranslate="entity.action.edit">Edit</span>
+      </button>
+    </div>
+  </div>
+</div>

@@ -15,7 +15,45 @@
     <property name="datetimeType" value="datetime" dbms="oracle, mssql, postgresql, h2"/>
 
     <include file="config/liquibase/changelog/00000000000000_initial_schema.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20210511094615_added_entity_Appuser.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20210511094616_added_entity_Blog.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20210511094617_added_entity_Post.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20210511094618_added_entity_Topic.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20210511094619_added_entity_Tag.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20210511094620_added_entity_Comment.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20210511094621_added_entity_Notification.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20210511094622_added_entity_Appphoto.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20210511094623_added_entity_Community.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20210511094624_added_entity_Follow.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20210511094625_added_entity_Blockuser.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20210511094626_added_entity_Interest.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20210511094627_added_entity_Activity.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20210511094628_added_entity_Celeb.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20210511094629_added_entity_Cinterest.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20210511094630_added_entity_Cactivity.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20210511094631_added_entity_Cceleb.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20210511094632_added_entity_Urllink.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20210511094633_added_entity_Frontpageconfig.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20210511094634_added_entity_Feedback.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20210511094635_added_entity_ConfigVariables.xml" relativeToChangelogFile="false"/>
     <!-- jhipster-needle-liquibase-add-changelog - JHipster will add liquibase changelogs here -->
+    <include file="config/liquibase/changelog/20210511094615_added_entity_constraints_Appuser.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20210511094616_added_entity_constraints_Blog.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20210511094617_added_entity_constraints_Post.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20210511094618_added_entity_constraints_Topic.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20210511094619_added_entity_constraints_Tag.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20210511094620_added_entity_constraints_Comment.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20210511094621_added_entity_constraints_Notification.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20210511094622_added_entity_constraints_Appphoto.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20210511094623_added_entity_constraints_Community.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20210511094624_added_entity_constraints_Follow.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20210511094625_added_entity_constraints_Blockuser.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20210511094626_added_entity_constraints_Interest.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20210511094627_added_entity_constraints_Activity.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20210511094628_added_entity_constraints_Celeb.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20210511094629_added_entity_constraints_Cinterest.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20210511094630_added_entity_constraints_Cactivity.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20210511094631_added_entity_constraints_Cceleb.xml" relativeToChangelogFile="false"/>
     <!-- jhipster-needle-liquibase-add-constraints-changelog - JHipster will add liquibase constraints changelogs here -->
     <!-- jhipster-needle-liquibase-add-incremental-changelog - JHipster will add incremental liquibase changelogs here -->
 </databaseChangeLog>

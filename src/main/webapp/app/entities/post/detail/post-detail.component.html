@@ -1,0 +1,85 @@
+<div class="row justify-content-center">
+  <div class="col-8">
+    <div *ngIf="post">
+      <h2 data-cy="postDetailsHeading"><span jhiTranslate="spingularApp.post.detail.title">Post</span></h2>
+
+      <hr />
+
+      <jhi-alert-error></jhi-alert-error>
+
+      <jhi-alert></jhi-alert>
+
+      <dl class="row-md jh-entity-details">
+        <dt><span jhiTranslate="global.field.id">ID</span></dt>
+        <dd>
+          <span>{{ post.id }}</span>
+        </dd>
+        <dt><span jhiTranslate="spingularApp.post.creationDate">Creation Date</span></dt>
+        <dd>
+          <span>{{ post.creationDate | formatMediumDatetime }}</span>
+        </dd>
+        <dt><span jhiTranslate="spingularApp.post.publicationDate">Publication Date</span></dt>
+        <dd>
+          <span>{{ post.publicationDate | formatMediumDatetime }}</span>
+        </dd>
+        <dt><span jhiTranslate="spingularApp.post.headline">Headline</span></dt>
+        <dd>
+          <span>{{ post.headline }}</span>
+        </dd>
+        <dt><span jhiTranslate="spingularApp.post.leadtext">Leadtext</span></dt>
+        <dd>
+          <span>{{ post.leadtext }}</span>
+        </dd>
+        <dt><span jhiTranslate="spingularApp.post.bodytext">Bodytext</span></dt>
+        <dd>
+          <span>{{ post.bodytext }}</span>
+        </dd>
+        <dt><span jhiTranslate="spingularApp.post.quote">Quote</span></dt>
+        <dd>
+          <span>{{ post.quote }}</span>
+        </dd>
+        <dt><span jhiTranslate="spingularApp.post.conclusion">Conclusion</span></dt>
+        <dd>
+          <span>{{ post.conclusion }}</span>
+        </dd>
+        <dt><span jhiTranslate="spingularApp.post.linkText">Link Text</span></dt>
+        <dd>
+          <span>{{ post.linkText }}</span>
+        </dd>
+        <dt><span jhiTranslate="spingularApp.post.linkURL">Link URL</span></dt>
+        <dd>
+          <span>{{ post.linkURL }}</span>
+        </dd>
+        <dt><span jhiTranslate="spingularApp.post.image">Image</span></dt>
+        <dd>
+          <div *ngIf="post.image">
+            <a (click)="openFile(post.image, post.imageContentType)">
+              <img [src]="'data:' + post.imageContentType + ';base64,' + post.image" style="max-width: 100%" alt="post image" />
+            </a>
+            {{ post.imageContentType }}, {{ byteSize(post.image) }}
+          </div>
+        </dd>
+        <dt><span jhiTranslate="spingularApp.post.appuser">Appuser</span></dt>
+        <dd>
+          <div *ngIf="post.appuser">
+            <a [routerLink]="['/appuser', post.appuser?.id, 'view']">{{ post.appuser?.id }}</a>
+          </div>
+        </dd>
+        <dt><span jhiTranslate="spingularApp.post.blog">Blog</span></dt>
+        <dd>
+          <div *ngIf="post.blog">
+            <a [routerLink]="['/blog', post.blog?.id, 'view']">{{ post.blog?.title }}</a>
+          </div>
+        </dd>
+      </dl>
+
+      <button type="submit" (click)="previousState()" class="btn btn-info" data-cy="entityDetailsBackButton">
+        <fa-icon icon="arrow-left"></fa-icon>&nbsp;<span jhiTranslate="entity.action.back">Back</span>
+      </button>
+
+      <button type="button" [routerLink]="['/post', post.id, 'edit']" class="btn btn-primary">
+        <fa-icon icon="pencil-alt"></fa-icon>&nbsp;<span jhiTranslate="entity.action.edit">Edit</span>
+      </button>
+    </div>
+  </div>
+</div>

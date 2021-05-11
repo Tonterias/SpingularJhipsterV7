@@ -1,0 +1,47 @@
+<div class="row justify-content-center">
+  <div class="col-8">
+    <div *ngIf="appphoto">
+      <h2 data-cy="appphotoDetailsHeading"><span jhiTranslate="spingularApp.appphoto.detail.title">Appphoto</span></h2>
+
+      <hr />
+
+      <jhi-alert-error></jhi-alert-error>
+
+      <jhi-alert></jhi-alert>
+
+      <dl class="row-md jh-entity-details">
+        <dt><span jhiTranslate="global.field.id">ID</span></dt>
+        <dd>
+          <span>{{ appphoto.id }}</span>
+        </dd>
+        <dt><span jhiTranslate="spingularApp.appphoto.creationDate">Creation Date</span></dt>
+        <dd>
+          <span>{{ appphoto.creationDate | formatMediumDatetime }}</span>
+        </dd>
+        <dt><span jhiTranslate="spingularApp.appphoto.image">Image</span></dt>
+        <dd>
+          <div *ngIf="appphoto.image">
+            <a (click)="openFile(appphoto.image, appphoto.imageContentType)">
+              <img [src]="'data:' + appphoto.imageContentType + ';base64,' + appphoto.image" style="max-width: 100%" alt="appphoto image" />
+            </a>
+            {{ appphoto.imageContentType }}, {{ byteSize(appphoto.image) }}
+          </div>
+        </dd>
+        <dt><span jhiTranslate="spingularApp.appphoto.appuser">Appuser</span></dt>
+        <dd>
+          <div *ngIf="appphoto.appuser">
+            <a [routerLink]="['/appuser', appphoto.appuser?.id, 'view']">{{ appphoto.appuser?.id }}</a>
+          </div>
+        </dd>
+      </dl>
+
+      <button type="submit" (click)="previousState()" class="btn btn-info" data-cy="entityDetailsBackButton">
+        <fa-icon icon="arrow-left"></fa-icon>&nbsp;<span jhiTranslate="entity.action.back">Back</span>
+      </button>
+
+      <button type="button" [routerLink]="['/appphoto', appphoto.id, 'edit']" class="btn btn-primary">
+        <fa-icon icon="pencil-alt"></fa-icon>&nbsp;<span jhiTranslate="entity.action.edit">Edit</span>
+      </button>
+    </div>
+  </div>
+</div>

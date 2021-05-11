@@ -1,0 +1,126 @@
+<div>
+  <h2 id="page-heading" data-cy="AppuserHeading">
+    <span jhiTranslate="spingularApp.appuser.home.title">Appusers</span>
+
+    <div class="d-flex justify-content-end">
+      <button class="btn btn-info mr-2" (click)="loadPage()" [disabled]="isLoading">
+        <fa-icon icon="sync" [spin]="isLoading"></fa-icon>
+        <span jhiTranslate="spingularApp.appuser.home.refreshListLabel">Refresh List</span>
+      </button>
+
+      <button
+        id="jh-create-entity"
+        data-cy="entityCreateButton"
+        class="btn btn-primary jh-create-entity create-appuser"
+        [routerLink]="['/appuser/new']"
+      >
+        <fa-icon icon="plus"></fa-icon>
+        <span jhiTranslate="spingularApp.appuser.home.createLabel"> Create a new Appuser </span>
+      </button>
+    </div>
+  </h2>
+
+  <jhi-alert-error></jhi-alert-error>
+
+  <jhi-alert></jhi-alert>
+
+  <div class="alert alert-warning" id="no-result" *ngIf="appusers?.length === 0">
+    <span jhiTranslate="spingularApp.appuser.home.notFound">No appusers found</span>
+  </div>
+
+  <div class="table-responsive" id="entities" *ngIf="appusers && appusers.length > 0">
+    <table class="table table-striped" aria-describedby="page-heading">
+      <thead>
+        <tr jhiSort [(predicate)]="predicate" [(ascending)]="ascending" [callback]="loadPage.bind(this)">
+          <th scope="col" jhiSortBy="id"><span jhiTranslate="global.field.id">ID</span> <fa-icon icon="sort"></fa-icon></th>
+          <th scope="col" jhiSortBy="creationDate">
+            <span jhiTranslate="spingularApp.appuser.creationDate">Creation Date</span> <fa-icon icon="sort"></fa-icon>
+          </th>
+          <th scope="col" jhiSortBy="bio"><span jhiTranslate="spingularApp.appuser.bio">Bio</span> <fa-icon icon="sort"></fa-icon></th>
+          <th scope="col" jhiSortBy="facebook">
+            <span jhiTranslate="spingularApp.appuser.facebook">Facebook</span> <fa-icon icon="sort"></fa-icon>
+          </th>
+          <th scope="col" jhiSortBy="twitter">
+            <span jhiTranslate="spingularApp.appuser.twitter">Twitter</span> <fa-icon icon="sort"></fa-icon>
+          </th>
+          <th scope="col" jhiSortBy="linkedin">
+            <span jhiTranslate="spingularApp.appuser.linkedin">Linkedin</span> <fa-icon icon="sort"></fa-icon>
+          </th>
+          <th scope="col" jhiSortBy="instagram">
+            <span jhiTranslate="spingularApp.appuser.instagram">Instagram</span> <fa-icon icon="sort"></fa-icon>
+          </th>
+          <th scope="col" jhiSortBy="birthdate">
+            <span jhiTranslate="spingularApp.appuser.birthdate">Birthdate</span> <fa-icon icon="sort"></fa-icon>
+          </th>
+          <th scope="col" jhiSortBy="user.id">
+            <span jhiTranslate="spingularApp.appuser.user">User</span> <fa-icon icon="sort"></fa-icon>
+          </th>
+          <th scope="col"></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let appuser of appusers; trackBy: trackId" data-cy="entityTable">
+          <td>
+            <a [routerLink]="['/appuser', appuser.id, 'view']">{{ appuser.id }}</a>
+          </td>
+          <td>{{ appuser.creationDate | formatMediumDatetime }}</td>
+          <td>{{ appuser.bio }}</td>
+          <td>{{ appuser.facebook }}</td>
+          <td>{{ appuser.twitter }}</td>
+          <td>{{ appuser.linkedin }}</td>
+          <td>{{ appuser.instagram }}</td>
+          <td>{{ appuser.birthdate | formatMediumDatetime }}</td>
+          <td>
+            {{ appuser.user?.id }}
+          </td>
+          <td class="text-right">
+            <div class="btn-group">
+              <button
+                type="submit"
+                [routerLink]="['/appuser', appuser.id, 'view']"
+                class="btn btn-info btn-sm"
+                data-cy="entityDetailsButton"
+              >
+                <fa-icon icon="eye"></fa-icon>
+                <span class="d-none d-md-inline" jhiTranslate="entity.action.view">View</span>
+              </button>
+
+              <button
+                type="submit"
+                [routerLink]="['/appuser', appuser.id, 'edit']"
+                class="btn btn-primary btn-sm"
+                data-cy="entityEditButton"
+              >
+                <fa-icon icon="pencil-alt"></fa-icon>
+                <span class="d-none d-md-inline" jhiTranslate="entity.action.edit">Edit</span>
+              </button>
+
+              <button type="submit" (click)="delete(appuser)" class="btn btn-danger btn-sm" data-cy="entityDeleteButton">
+                <fa-icon icon="times"></fa-icon>
+                <span class="d-none d-md-inline" jhiTranslate="entity.action.delete">Delete</span>
+              </button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div *ngIf="appusers && appusers.length > 0">
+    <div class="row justify-content-center">
+      <jhi-item-count [params]="{ page: page, totalItems: totalItems, itemsPerPage: itemsPerPage }"></jhi-item-count>
+    </div>
+
+    <div class="row justify-content-center">
+      <ngb-pagination
+        [collectionSize]="totalItems"
+        [(page)]="ngbPaginationPage"
+        [pageSize]="itemsPerPage"
+        [maxSize]="5"
+        [rotate]="true"
+        [boundaryLinks]="true"
+        (pageChange)="loadPage($event)"
+      ></ngb-pagination>
+    </div>
+  </div>
+</div>

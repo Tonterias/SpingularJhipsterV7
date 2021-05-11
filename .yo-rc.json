@@ -41,6 +41,30 @@
     "rememberMeKey": "32408d57b8dde3c81d41f4f72d8589909194796a98e75ce886dcfb34012637e06bef3b48b704c32990285d75fe18f5e3d997",
     "clientPackageManager": "npm",
     "clientThemeVariant": "",
-    "languages": ["en", "es"]
+    "languages": ["en", "es"],
+    "entities": [
+      "Appuser",
+      "Blog",
+      "Post",
+      "Topic",
+      "Tag",
+      "Comment",
+      "Notification",
+      "Appphoto",
+      "Community",
+      "Follow",
+      "Blockuser",
+      "Interest",
+      "Activity",
+      "Celeb",
+      "Cinterest",
+      "Cactivity",
+      "Cceleb",
+      "Urllink",
+      "Frontpageconfig",
+      "Feedback",
+      "ConfigVariables"
+    ],
+    "lastLiquibaseTimestamp": 1620726395000
   }
 }

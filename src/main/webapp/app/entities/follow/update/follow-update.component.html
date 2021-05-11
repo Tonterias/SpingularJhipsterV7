@@ -1,0 +1,101 @@
+<div class="row justify-content-center">
+  <div class="col-8">
+    <form name="editForm" role="form" novalidate (ngSubmit)="save()" [formGroup]="editForm">
+      <h2 id="jhi-follow-heading" data-cy="FollowCreateUpdateHeading" jhiTranslate="spingularApp.follow.home.createOrEditLabel">
+        Create or edit a Follow
+      </h2>
+
+      <div>
+        <jhi-alert-error></jhi-alert-error>
+
+        <div class="form-group" [hidden]="editForm.get('id')!.value == null">
+          <label class="form-control-label" jhiTranslate="global.field.id" for="field_id">ID</label>
+          <input type="number" class="form-control" name="id" id="field_id" data-cy="id" formControlName="id" [readonly]="true" />
+        </div>
+
+        <div class="form-group">
+          <label class="form-control-label" jhiTranslate="spingularApp.follow.creationDate" for="field_creationDate">Creation Date</label>
+          <div class="d-flex">
+            <input
+              id="field_creationDate"
+              data-cy="creationDate"
+              type="datetime-local"
+              class="form-control"
+              name="creationDate"
+              formControlName="creationDate"
+              placeholder="YYYY-MM-DD HH:mm"
+            />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-control-label" jhiTranslate="spingularApp.follow.followed" for="field_followed">Followed</label>
+          <select class="form-control" id="field_followed" data-cy="followed" name="followed" formControlName="followed">
+            <option [ngValue]="null"></option>
+            <option
+              [ngValue]="appuserOption.id === editForm.get('followed')!.value?.id ? editForm.get('followed')!.value : appuserOption"
+              *ngFor="let appuserOption of appusersSharedCollection; trackBy: trackAppuserById"
+            >
+              {{ appuserOption.id }}
+            </option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-control-label" jhiTranslate="spingularApp.follow.following" for="field_following">Following</label>
+          <select class="form-control" id="field_following" data-cy="following" name="following" formControlName="following">
+            <option [ngValue]="null"></option>
+            <option
+              [ngValue]="appuserOption.id === editForm.get('following')!.value?.id ? editForm.get('following')!.value : appuserOption"
+              *ngFor="let appuserOption of appusersSharedCollection; trackBy: trackAppuserById"
+            >
+              {{ appuserOption.id }}
+            </option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-control-label" jhiTranslate="spingularApp.follow.cfollowed" for="field_cfollowed">Cfollowed</label>
+          <select class="form-control" id="field_cfollowed" data-cy="cfollowed" name="cfollowed" formControlName="cfollowed">
+            <option [ngValue]="null"></option>
+            <option
+              [ngValue]="communityOption.id === editForm.get('cfollowed')!.value?.id ? editForm.get('cfollowed')!.value : communityOption"
+              *ngFor="let communityOption of communitiesSharedCollection; trackBy: trackCommunityById"
+            >
+              {{ communityOption.id }}
+            </option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-control-label" jhiTranslate="spingularApp.follow.cfollowing" for="field_cfollowing">Cfollowing</label>
+          <select class="form-control" id="field_cfollowing" data-cy="cfollowing" name="cfollowing" formControlName="cfollowing">
+            <option [ngValue]="null"></option>
+            <option
+              [ngValue]="communityOption.id === editForm.get('cfollowing')!.value?.id ? editForm.get('cfollowing')!.value : communityOption"
+              *ngFor="let communityOption of communitiesSharedCollection; trackBy: trackCommunityById"
+            >
+              {{ communityOption.id }}
+            </option>
+          </select>
+        </div>
+      </div>
+
+      <div>
+        <button type="button" id="cancel-save" class="btn btn-secondary" (click)="previousState()">
+          <fa-icon icon="ban"></fa-icon>&nbsp;<span jhiTranslate="entity.action.cancel">Cancel</span>
+        </button>
+
+        <button
+          type="submit"
+          id="save-entity"
+          data-cy="entityCreateSaveButton"
+          [disabled]="editForm.invalid || isSaving"
+          class="btn btn-primary"
+        >
+          <fa-icon icon="save"></fa-icon>&nbsp;<span jhiTranslate="entity.action.save">Save</span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

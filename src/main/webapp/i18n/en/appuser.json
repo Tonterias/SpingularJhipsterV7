@@ -1,0 +1,44 @@
+{
+  "spingularApp": {
+    "appuser": {
+      "home": {
+        "title": "Appusers",
+        "refreshListLabel": "Refresh list",
+        "createLabel": "Create a new Appuser",
+        "createOrEditLabel": "Create or edit a Appuser",
+        "notFound": "No Appusers found"
+      },
+      "created": "A new Appuser is created with identifier {{ param }}",
+      "updated": "A Appuser is updated with identifier {{ param }}",
+      "deleted": "A Appuser is deleted with identifier {{ param }}",
+      "delete": {
+        "question": "Are you sure you want to delete Appuser {{ id }}?"
+      },
+      "detail": {
+        "title": "Appuser"
+      },
+      "id": "ID",
+      "creationDate": "Creation Date",
+      "bio": "Bio",
+      "facebook": "Facebook",
+      "twitter": "Twitter",
+      "linkedin": "Linkedin",
+      "instagram": "Instagram",
+      "birthdate": "Birthdate",
+      "user": "User",
+      "blog": "Blog",
+      "community": "Community",
+      "notification": "Notification",
+      "comment": "Comment",
+      "post": "Post",
+      "followed": "Followed",
+      "following": "Following",
+      "blockeduser": "Blockeduser",
+      "blockinguser": "Blockinguser",
+      "appphoto": "Appphoto",
+      "interest": "Interest",
+      "activity": "Activity",
+      "celeb": "Celeb"
+    }
+  }
+}

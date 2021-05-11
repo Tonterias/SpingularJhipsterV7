@@ -1,0 +1,131 @@
+<div>
+  <h2 id="page-heading" data-cy="CommunityHeading">
+    <span jhiTranslate="spingularApp.community.home.title">Communities</span>
+
+    <div class="d-flex justify-content-end">
+      <button class="btn btn-info mr-2" (click)="loadPage()" [disabled]="isLoading">
+        <fa-icon icon="sync" [spin]="isLoading"></fa-icon>
+        <span jhiTranslate="spingularApp.community.home.refreshListLabel">Refresh List</span>
+      </button>
+
+      <button
+        id="jh-create-entity"
+        data-cy="entityCreateButton"
+        class="btn btn-primary jh-create-entity create-community"
+        [routerLink]="['/community/new']"
+      >
+        <fa-icon icon="plus"></fa-icon>
+        <span jhiTranslate="spingularApp.community.home.createLabel"> Create a new Community </span>
+      </button>
+    </div>
+  </h2>
+
+  <jhi-alert-error></jhi-alert-error>
+
+  <jhi-alert></jhi-alert>
+
+  <div class="alert alert-warning" id="no-result" *ngIf="communities?.length === 0">
+    <span jhiTranslate="spingularApp.community.home.notFound">No communities found</span>
+  </div>
+
+  <div class="table-responsive" id="entities" *ngIf="communities && communities.length > 0">
+    <table class="table table-striped" aria-describedby="page-heading">
+      <thead>
+        <tr jhiSort [(predicate)]="predicate" [(ascending)]="ascending" [callback]="loadPage.bind(this)">
+          <th scope="col" jhiSortBy="id"><span jhiTranslate="global.field.id">ID</span> <fa-icon icon="sort"></fa-icon></th>
+          <th scope="col" jhiSortBy="creationDate">
+            <span jhiTranslate="spingularApp.community.creationDate">Creation Date</span> <fa-icon icon="sort"></fa-icon>
+          </th>
+          <th scope="col" jhiSortBy="communityName">
+            <span jhiTranslate="spingularApp.community.communityName">Community Name</span> <fa-icon icon="sort"></fa-icon>
+          </th>
+          <th scope="col" jhiSortBy="communityDescription">
+            <span jhiTranslate="spingularApp.community.communityDescription">Community Description</span> <fa-icon icon="sort"></fa-icon>
+          </th>
+          <th scope="col" jhiSortBy="image">
+            <span jhiTranslate="spingularApp.community.image">Image</span> <fa-icon icon="sort"></fa-icon>
+          </th>
+          <th scope="col" jhiSortBy="isActive">
+            <span jhiTranslate="spingularApp.community.isActive">Is Active</span> <fa-icon icon="sort"></fa-icon>
+          </th>
+          <th scope="col" jhiSortBy="appuser.id">
+            <span jhiTranslate="spingularApp.community.appuser">Appuser</span> <fa-icon icon="sort"></fa-icon>
+          </th>
+          <th scope="col"></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let community of communities; trackBy: trackId" data-cy="entityTable">
+          <td>
+            <a [routerLink]="['/community', community.id, 'view']">{{ community.id }}</a>
+          </td>
+          <td>{{ community.creationDate | formatMediumDatetime }}</td>
+          <td>{{ community.communityName }}</td>
+          <td>{{ community.communityDescription }}</td>
+          <td>
+            <a *ngIf="community.image" (click)="openFile(community.image, community.imageContentType)">
+              <img
+                [src]="'data:' + community.imageContentType + ';base64,' + community.image"
+                style="max-height: 30px"
+                alt="community image"
+              />
+            </a>
+            <span *ngIf="community.image">{{ community.imageContentType }}, {{ byteSize(community.image) }}</span>
+          </td>
+          <td>{{ community.isActive }}</td>
+          <td>
+            <div *ngIf="community.appuser">
+              <a [routerLink]="['/appuser', community.appuser?.id, 'view']">{{ community.appuser?.id }}</a>
+            </div>
+          </td>
+          <td class="text-right">
+            <div class="btn-group">
+              <button
+                type="submit"
+                [routerLink]="['/community', community.id, 'view']"
+                class="btn btn-info btn-sm"
+                data-cy="entityDetailsButton"
+              >
+                <fa-icon icon="eye"></fa-icon>
+                <span class="d-none d-md-inline" jhiTranslate="entity.action.view">View</span>
+              </button>
+
+              <button
+                type="submit"
+                [routerLink]="['/community', community.id, 'edit']"
+                class="btn btn-primary btn-sm"
+                data-cy="entityEditButton"
+              >
+                <fa-icon icon="pencil-alt"></fa-icon>
+                <span class="d-none d-md-inline" jhiTranslate="entity.action.edit">Edit</span>
+              </button>
+
+              <button type="submit" (click)="delete(community)" class="btn btn-danger btn-sm" data-cy="entityDeleteButton">
+                <fa-icon icon="times"></fa-icon>
+                <span class="d-none d-md-inline" jhiTranslate="entity.action.delete">Delete</span>
+              </button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div *ngIf="communities && communities.length > 0">
+    <div class="row justify-content-center">
+      <jhi-item-count [params]="{ page: page, totalItems: totalItems, itemsPerPage: itemsPerPage }"></jhi-item-count>
+    </div>
+
+    <div class="row justify-content-center">
+      <ngb-pagination
+        [collectionSize]="totalItems"
+        [(page)]="ngbPaginationPage"
+        [pageSize]="itemsPerPage"
+        [maxSize]="5"
+        [rotate]="true"
+        [boundaryLinks]="true"
+        (pageChange)="loadPage($event)"
+      ></ngb-pagination>
+    </div>
+  </div>
+</div>

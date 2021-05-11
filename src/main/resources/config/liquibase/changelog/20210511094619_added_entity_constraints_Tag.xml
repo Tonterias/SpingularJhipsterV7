@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.3.xsd">
+    <!--
+        Added the constraints for entity Tag.
+    -->
+    <changeSet id="20210511094619-2" author="jhipster">
+
+        <addForeignKeyConstraint baseColumnNames="tag_id"
+                                 baseTableName="rel_tag__post"
+                                 constraintName="fk_rel_tag__post__tag_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="tag"/>
+
+        <addForeignKeyConstraint baseColumnNames="post_id"
+                                 baseTableName="rel_tag__post"
+                                 constraintName="fk_rel_tag__post__post_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="post"/>
+    </changeSet>
+</databaseChangeLog>

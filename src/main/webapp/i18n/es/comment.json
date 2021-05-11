@@ -1,0 +1,28 @@
+{
+  "spingularApp": {
+    "comment": {
+      "home": {
+        "title": "Comments",
+        "refreshListLabel": "Refrescar lista",
+        "createLabel": "Crear nuevo Comment",
+        "createOrEditLabel": "Crear o editar Comment",
+        "notFound": "Ningún Comments encontrado"
+      },
+      "created": "Un nuevo Comment ha sido creado con el identificador {{ param }}",
+      "updated": "Un Comment ha sido actualizado con el identificador {{ param }}",
+      "deleted": "Un Comment ha sido eliminado con el identificador {{ param }}",
+      "delete": {
+        "question": "¿Seguro que quiere eliminar Comment {{ id }}?"
+      },
+      "detail": {
+        "title": "Comment"
+      },
+      "id": "ID",
+      "creationDate": "Creation Date",
+      "commentText": "Comment Text",
+      "isOffensive": "Is Offensive",
+      "appuser": "Appuser",
+      "post": "Post"
+    }
+  }
+}
