@@ -49,28 +49,28 @@ public class Community implements Serializable {
     @Column(name = "is_active")
     private Boolean isActive;
 
-    @OneToMany(mappedBy = "community")
-    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+    @OneToMany(mappedBy = "community", cascade = CascadeType.REMOVE)
+    @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
     @JsonIgnoreProperties(value = { "posts", "appuser", "community" }, allowSetters = true)
     private Set<Blog> blogs = new HashSet<>();
 
-    @OneToMany(mappedBy = "cfollowed")
-    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+    @OneToMany(mappedBy = "cfollowed", cascade = CascadeType.REMOVE)
+    @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
     @JsonIgnoreProperties(value = { "followed", "following", "cfollowed", "cfollowing" }, allowSetters = true)
     private Set<Follow> cfolloweds = new HashSet<>();
 
-    @OneToMany(mappedBy = "cfollowing")
-    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+    @OneToMany(mappedBy = "cfollowing", cascade = CascadeType.REMOVE)
+    @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
     @JsonIgnoreProperties(value = { "followed", "following", "cfollowed", "cfollowing" }, allowSetters = true)
     private Set<Follow> cfollowings = new HashSet<>();
 
-    @OneToMany(mappedBy = "cblockeduser")
-    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+    @OneToMany(mappedBy = "cblockeduser", cascade = CascadeType.REMOVE)
+    @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
     @JsonIgnoreProperties(value = { "blockeduser", "blockinguser", "cblockeduser", "cblockinguser" }, allowSetters = true)
     private Set<Blockuser> cblockedusers = new HashSet<>();
 
-    @OneToMany(mappedBy = "cblockinguser")
-    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+    @OneToMany(mappedBy = "cblockinguser", cascade = CascadeType.REMOVE)
+    @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
     @JsonIgnoreProperties(value = { "blockeduser", "blockinguser", "cblockeduser", "cblockinguser" }, allowSetters = true)
     private Set<Blockuser> cblockingusers = new HashSet<>();
 
@@ -97,18 +97,18 @@ public class Community implements Serializable {
     )
     private Appuser appuser;
 
-    @ManyToMany(mappedBy = "communities")
-    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+    @ManyToMany(mappedBy = "communities", cascade = CascadeType.REMOVE)
+    @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
     @JsonIgnoreProperties(value = { "communities" }, allowSetters = true)
     private Set<Cinterest> cinterests = new HashSet<>();
 
-    @ManyToMany(mappedBy = "communities")
-    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+    @ManyToMany(mappedBy = "communities", cascade = CascadeType.REMOVE)
+    @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
     @JsonIgnoreProperties(value = { "communities" }, allowSetters = true)
     private Set<Cactivity> cactivities = new HashSet<>();
 
-    @ManyToMany(mappedBy = "communities")
-    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+    @ManyToMany(mappedBy = "communities", cascade = CascadeType.REMOVE)
+    @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
     @JsonIgnoreProperties(value = { "communities" }, allowSetters = true)
     private Set<Cceleb> ccelebs = new HashSet<>();
 

@@ -57,13 +57,13 @@ public class Appuser implements Serializable {
     @JoinColumn(unique = true)
     private User user;
 
-    @OneToMany(mappedBy = "appuser")
-    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+    @OneToMany(mappedBy = "appuser", cascade = CascadeType.REMOVE)
+    @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
     @JsonIgnoreProperties(value = { "posts", "appuser", "community" }, allowSetters = true)
     private Set<Blog> blogs = new HashSet<>();
 
-    @OneToMany(mappedBy = "appuser")
-    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+    @OneToMany(mappedBy = "appuser", cascade = CascadeType.REMOVE)
+    @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
     @JsonIgnoreProperties(
         value = {
             "blogs", "cfolloweds", "cfollowings", "cblockedusers", "cblockingusers", "appuser", "cinterests", "cactivities", "ccelebs",
@@ -72,57 +72,57 @@ public class Appuser implements Serializable {
     )
     private Set<Community> communities = new HashSet<>();
 
-    @OneToMany(mappedBy = "appuser")
-    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+    @OneToMany(mappedBy = "appuser", cascade = CascadeType.REMOVE)
+    @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
     @JsonIgnoreProperties(value = { "appuser" }, allowSetters = true)
     private Set<Notification> notifications = new HashSet<>();
 
-    @OneToMany(mappedBy = "appuser")
-    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+    @OneToMany(mappedBy = "appuser", cascade = CascadeType.REMOVE)
+    @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
     @JsonIgnoreProperties(value = { "appuser", "post" }, allowSetters = true)
     private Set<Comment> comments = new HashSet<>();
 
-    @OneToMany(mappedBy = "appuser")
-    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+    @OneToMany(mappedBy = "appuser", cascade = CascadeType.REMOVE)
+    @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
     @JsonIgnoreProperties(value = { "comments", "appuser", "blog", "tags", "topics" }, allowSetters = true)
     private Set<Post> posts = new HashSet<>();
 
-    @OneToMany(mappedBy = "followed")
-    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+    @OneToMany(mappedBy = "followed", cascade = CascadeType.REMOVE)
+    @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
     @JsonIgnoreProperties(value = { "followed", "following", "cfollowed", "cfollowing" }, allowSetters = true)
     private Set<Follow> followeds = new HashSet<>();
 
-    @OneToMany(mappedBy = "following")
-    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+    @OneToMany(mappedBy = "following", cascade = CascadeType.REMOVE)
+    @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
     @JsonIgnoreProperties(value = { "followed", "following", "cfollowed", "cfollowing" }, allowSetters = true)
     private Set<Follow> followings = new HashSet<>();
 
-    @OneToMany(mappedBy = "blockeduser")
-    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+    @OneToMany(mappedBy = "blockeduser", cascade = CascadeType.REMOVE)
+    @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
     @JsonIgnoreProperties(value = { "blockeduser", "blockinguser", "cblockeduser", "cblockinguser" }, allowSetters = true)
     private Set<Blockuser> blockedusers = new HashSet<>();
 
-    @OneToMany(mappedBy = "blockinguser")
-    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+    @OneToMany(mappedBy = "blockinguser", cascade = CascadeType.REMOVE)
+    @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
     @JsonIgnoreProperties(value = { "blockeduser", "blockinguser", "cblockeduser", "cblockinguser" }, allowSetters = true)
     private Set<Blockuser> blockingusers = new HashSet<>();
 
     @JsonIgnoreProperties(value = { "appuser" }, allowSetters = true)
-    @OneToOne(mappedBy = "appuser")
+    @OneToOne(mappedBy = "appuser", cascade = CascadeType.REMOVE)
     private Appphoto appphoto;
 
-    @ManyToMany(mappedBy = "appusers")
-    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+    @ManyToMany(mappedBy = "appusers", cascade = CascadeType.REMOVE)
+    @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
     @JsonIgnoreProperties(value = { "appusers" }, allowSetters = true)
     private Set<Interest> interests = new HashSet<>();
 
-    @ManyToMany(mappedBy = "appusers")
-    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+    @ManyToMany(mappedBy = "appusers", cascade = CascadeType.REMOVE)
+    @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
     @JsonIgnoreProperties(value = { "appusers" }, allowSetters = true)
     private Set<Activity> activities = new HashSet<>();
 
-    @ManyToMany(mappedBy = "appusers")
-    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+    @ManyToMany(mappedBy = "appusers", cascade = CascadeType.REMOVE)
+    @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
     @JsonIgnoreProperties(value = { "appusers" }, allowSetters = true)
     private Set<Celeb> celebs = new HashSet<>();
 
