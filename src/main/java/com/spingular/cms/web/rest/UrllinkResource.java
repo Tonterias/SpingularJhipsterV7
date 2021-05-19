@@ -1,28 +1,41 @@
 package com.spingular.cms.web.rest;
 
-import com.spingular.cms.repository.UrllinkRepository;
-import com.spingular.cms.service.UrllinkQueryService;
-import com.spingular.cms.service.UrllinkService;
-import com.spingular.cms.service.criteria.UrllinkCriteria;
-import com.spingular.cms.service.dto.UrllinkDTO;
-import com.spingular.cms.web.rest.errors.BadRequestAlertException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
+
+import com.spingular.cms.repository.UrllinkRepository;
+import com.spingular.cms.security.AuthoritiesConstants;
+import com.spingular.cms.security.SecurityUtils;
+import com.spingular.cms.service.UrllinkQueryService;
+import com.spingular.cms.service.UrllinkService;
+import com.spingular.cms.service.criteria.UrllinkCriteria;
+import com.spingular.cms.service.dto.UrllinkDTO;
+import com.spingular.cms.web.rest.errors.BadRequestAlertException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
 import tech.jhipster.web.util.HeaderUtil;
 import tech.jhipster.web.util.PaginationUtil;
 import tech.jhipster.web.util.ResponseUtil;
@@ -47,7 +60,8 @@ public class UrllinkResource {
 
     private final UrllinkQueryService urllinkQueryService;
 
-    public UrllinkResource(UrllinkService urllinkService, UrllinkRepository urllinkRepository, UrllinkQueryService urllinkQueryService) {
+    public UrllinkResource(UrllinkService urllinkService, UrllinkRepository urllinkRepository,
+            UrllinkQueryService urllinkQueryService) {
         this.urllinkService = urllinkService;
         this.urllinkRepository = urllinkRepository;
         this.urllinkQueryService = urllinkQueryService;
@@ -57,37 +71,47 @@ public class UrllinkResource {
      * {@code POST  /urllinks} : Create a new urllink.
      *
      * @param urllinkDTO the urllinkDTO to create.
-     * @return the {@link ResponseEntity} with status {@code 201 (Created)} and with body the new urllinkDTO, or with status {@code 400 (Bad Request)} if the urllink has already an ID.
+     * @return the {@link ResponseEntity} with status {@code 201 (Created)} and with
+     *         body the new urllinkDTO, or with status {@code 400 (Bad Request)} if
+     *         the urllink has already an ID.
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PostMapping("/urllinks")
-    public ResponseEntity<UrllinkDTO> createUrllink(@Valid @RequestBody UrllinkDTO urllinkDTO) throws URISyntaxException {
+    public ResponseEntity<UrllinkDTO> createUrllink(@Valid @RequestBody UrllinkDTO urllinkDTO)
+            throws URISyntaxException {
         log.debug("REST request to save Urllink : {}", urllinkDTO);
         if (urllinkDTO.getId() != null) {
             throw new BadRequestAlertException("A new urllink cannot already have an ID", ENTITY_NAME, "idexists");
         }
-        UrllinkDTO result = urllinkService.save(urllinkDTO);
+
+        // NOTE Only for Admins
+        UrllinkDTO result = new UrllinkDTO();
+        if (SecurityUtils.hasCurrentUserThisAuthority(AuthoritiesConstants.ADMIN)) {
+            result = urllinkService.save(urllinkDTO);
+            log.debug("Urllink DTO to create, belongs to current user: {}", urllinkDTO.toString());
+        }
+
         return ResponseEntity
-            .created(new URI("/api/urllinks/" + result.getId()))
-            .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getId().toString()))
-            .body(result);
+                .created(new URI("/api/urllinks/" + result.getId())).headers(HeaderUtil
+                        .createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getId().toString()))
+                .body(result);
     }
 
     /**
      * {@code PUT  /urllinks/:id} : Updates an existing urllink.
      *
-     * @param id the id of the urllinkDTO to save.
+     * @param id         the id of the urllinkDTO to save.
      * @param urllinkDTO the urllinkDTO to update.
-     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated urllinkDTO,
-     * or with status {@code 400 (Bad Request)} if the urllinkDTO is not valid,
-     * or with status {@code 500 (Internal Server Error)} if the urllinkDTO couldn't be updated.
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body
+     *         the updated urllinkDTO, or with status {@code 400 (Bad Request)} if
+     *         the urllinkDTO is not valid, or with status
+     *         {@code 500 (Internal Server Error)} if the urllinkDTO couldn't be
+     *         updated.
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PutMapping("/urllinks/{id}")
-    public ResponseEntity<UrllinkDTO> updateUrllink(
-        @PathVariable(value = "id", required = false) final Long id,
-        @Valid @RequestBody UrllinkDTO urllinkDTO
-    ) throws URISyntaxException {
+    public ResponseEntity<UrllinkDTO> updateUrllink(@PathVariable(value = "id", required = false) final Long id,
+            @Valid @RequestBody UrllinkDTO urllinkDTO) throws URISyntaxException {
         log.debug("REST request to update Urllink : {}, {}", id, urllinkDTO);
         if (urllinkDTO.getId() == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
@@ -100,29 +124,35 @@ public class UrllinkResource {
             throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound");
         }
 
-        UrllinkDTO result = urllinkService.save(urllinkDTO);
-        return ResponseEntity
-            .ok()
-            .headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, urllinkDTO.getId().toString()))
-            .body(result);
+        // NOTE Only for Admins
+        UrllinkDTO result = new UrllinkDTO();
+        if (SecurityUtils.hasCurrentUserThisAuthority(AuthoritiesConstants.ADMIN)) {
+            result = urllinkService.save(urllinkDTO);
+            log.debug("Urllink DTO to create, belongs to current user: {}", urllinkDTO.toString());
+        }
+
+        return ResponseEntity.ok().headers(
+                HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, urllinkDTO.getId().toString()))
+                .body(result);
     }
 
     /**
-     * {@code PATCH  /urllinks/:id} : Partial updates given fields of an existing urllink, field will ignore if it is null
+     * {@code PATCH  /urllinks/:id} : Partial updates given fields of an existing
+     * urllink, field will ignore if it is null
      *
-     * @param id the id of the urllinkDTO to save.
+     * @param id         the id of the urllinkDTO to save.
      * @param urllinkDTO the urllinkDTO to update.
-     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated urllinkDTO,
-     * or with status {@code 400 (Bad Request)} if the urllinkDTO is not valid,
-     * or with status {@code 404 (Not Found)} if the urllinkDTO is not found,
-     * or with status {@code 500 (Internal Server Error)} if the urllinkDTO couldn't be updated.
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body
+     *         the updated urllinkDTO, or with status {@code 400 (Bad Request)} if
+     *         the urllinkDTO is not valid, or with status {@code 404 (Not Found)}
+     *         if the urllinkDTO is not found, or with status
+     *         {@code 500 (Internal Server Error)} if the urllinkDTO couldn't be
+     *         updated.
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PatchMapping(value = "/urllinks/{id}", consumes = "application/merge-patch+json")
-    public ResponseEntity<UrllinkDTO> partialUpdateUrllink(
-        @PathVariable(value = "id", required = false) final Long id,
-        @NotNull @RequestBody UrllinkDTO urllinkDTO
-    ) throws URISyntaxException {
+    public ResponseEntity<UrllinkDTO> partialUpdateUrllink(@PathVariable(value = "id", required = false) final Long id,
+            @NotNull @RequestBody UrllinkDTO urllinkDTO) throws URISyntaxException {
         log.debug("REST request to partial update Urllink partially : {}, {}", id, urllinkDTO);
         if (urllinkDTO.getId() == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
@@ -135,12 +165,15 @@ public class UrllinkResource {
             throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound");
         }
 
-        Optional<UrllinkDTO> result = urllinkService.partialUpdate(urllinkDTO);
+        // NOTE Only for Admins
+        Optional<UrllinkDTO> result = urllinkService.findOne(id);
+        if (SecurityUtils.hasCurrentUserThisAuthority(AuthoritiesConstants.ADMIN)) {
+            result = urllinkService.partialUpdate(urllinkDTO);
+            log.debug("Urllink DTO to partial update, belongs to current user: {}", urllinkService.toString());
+        }
 
-        return ResponseUtil.wrapOrNotFound(
-            result,
-            HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, urllinkDTO.getId().toString())
-        );
+        return ResponseUtil.wrapOrNotFound(result,
+                HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, urllinkDTO.getId().toString()));
     }
 
     /**
@@ -148,21 +181,31 @@ public class UrllinkResource {
      *
      * @param pageable the pagination information.
      * @param criteria the criteria which the requested entities should match.
-     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of urllinks in body.
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list
+     *         of urllinks in body.
      */
     @GetMapping("/urllinks")
     public ResponseEntity<List<UrllinkDTO>> getAllUrllinks(UrllinkCriteria criteria, Pageable pageable) {
         log.debug("REST request to get Urllinks by criteria: {}", criteria);
-        Page<UrllinkDTO> page = urllinkQueryService.findByCriteria(criteria, pageable);
-        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
-        return ResponseEntity.ok().headers(headers).body(page.getContent());
+
+        // NOTE Only for Admins
+        if (SecurityUtils.hasCurrentUserThisAuthority(AuthoritiesConstants.ADMIN)) {
+            Page<UrllinkDTO> page = urllinkQueryService.findByCriteria(criteria, pageable);
+
+            HttpHeaders headers = PaginationUtil
+                    .generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
+            return ResponseEntity.ok().headers(headers).body(page.getContent());
+        }
+
+        return ResponseUtil.wrapOrNotFound(null);
     }
 
     /**
      * {@code GET  /urllinks/count} : count all the urllinks.
      *
      * @param criteria the criteria which the requested entities should match.
-     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the count in body.
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the count
+     *         in body.
      */
     @GetMapping("/urllinks/count")
     public ResponseEntity<Long> countUrllinks(UrllinkCriteria criteria) {
@@ -174,13 +217,20 @@ public class UrllinkResource {
      * {@code GET  /urllinks/:id} : get the "id" urllink.
      *
      * @param id the id of the urllinkDTO to retrieve.
-     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the urllinkDTO, or with status {@code 404 (Not Found)}.
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body
+     *         the urllinkDTO, or with status {@code 404 (Not Found)}.
      */
     @GetMapping("/urllinks/{id}")
     public ResponseEntity<UrllinkDTO> getUrllink(@PathVariable Long id) {
         log.debug("REST request to get Urllink : {}", id);
         Optional<UrllinkDTO> urllinkDTO = urllinkService.findOne(id);
-        return ResponseUtil.wrapOrNotFound(urllinkDTO);
+
+        // NOTE Only for Admins
+        if (SecurityUtils.hasCurrentUserThisAuthority(AuthoritiesConstants.ADMIN)) {
+            return ResponseUtil.wrapOrNotFound(urllinkDTO);
+        }
+
+        return ResponseUtil.wrapOrNotFound(null);
     }
 
     /**
@@ -192,10 +242,14 @@ public class UrllinkResource {
     @DeleteMapping("/urllinks/{id}")
     public ResponseEntity<Void> deleteUrllink(@PathVariable Long id) {
         log.debug("REST request to delete Urllink : {}", id);
-        urllinkService.delete(id);
-        return ResponseEntity
-            .noContent()
-            .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
-            .build();
+
+        // NOTE Only for Admins
+        if (SecurityUtils.hasCurrentUserThisAuthority(AuthoritiesConstants.ADMIN)) {
+            urllinkService.delete(id);
+        }
+
+        return ResponseEntity.noContent()
+                .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
+                .build();
     }
 }

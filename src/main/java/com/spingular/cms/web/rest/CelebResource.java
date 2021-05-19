@@ -1,6 +1,8 @@
 package com.spingular.cms.web.rest;
 
 import com.spingular.cms.repository.CelebRepository;
+import com.spingular.cms.security.AuthoritiesConstants;
+import com.spingular.cms.security.SecurityUtils;
 import com.spingular.cms.service.CelebQueryService;
 import com.spingular.cms.service.CelebService;
 import com.spingular.cms.service.criteria.CelebCriteria;
@@ -19,9 +21,16 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import tech.jhipster.web.util.HeaderUtil;
 import tech.jhipster.web.util.PaginationUtil;
@@ -57,16 +66,27 @@ public class CelebResource {
      * {@code POST  /celebs} : Create a new celeb.
      *
      * @param celebDTO the celebDTO to create.
-     * @return the {@link ResponseEntity} with status {@code 201 (Created)} and with body the new celebDTO, or with status {@code 400 (Bad Request)} if the celeb has already an ID.
+     * @return the {@link ResponseEntity} with status {@code 201 (Created)} and with
+     *         body the new celebDTO, or with status {@code 400 (Bad Request)} if
+     *         the celeb has already an ID.
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PostMapping("/celebs")
     public ResponseEntity<CelebDTO> createCeleb(@Valid @RequestBody CelebDTO celebDTO) throws URISyntaxException {
         log.debug("REST request to save Celeb : {}", celebDTO);
         if (celebDTO.getId() != null) {
-            throw new BadRequestAlertException("A new celeb cannot already have an ID", ENTITY_NAME, "idexists");
+            throw new BadRequestAlertException("A new Celeb cannot already have an ID", ENTITY_NAME, "idexists");
         }
-        CelebDTO result = celebService.save(celebDTO);
+
+        // NOTE: If anyone can use this Object, anyone can Create & Read any object
+        CelebDTO result = new CelebDTO();
+        if (
+            SecurityUtils.hasCurrentUserThisAuthority(AuthoritiesConstants.USER) ||
+            SecurityUtils.hasCurrentUserThisAuthority(AuthoritiesConstants.ADMIN)
+        ) {
+            result = celebService.save(celebDTO);
+        }
+
         return ResponseEntity
             .created(new URI("/api/celebs/" + result.getId()))
             .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getId().toString()))
@@ -76,11 +96,13 @@ public class CelebResource {
     /**
      * {@code PUT  /celebs/:id} : Updates an existing celeb.
      *
-     * @param id the id of the celebDTO to save.
+     * @param id       the id of the celebDTO to save.
      * @param celebDTO the celebDTO to update.
-     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated celebDTO,
-     * or with status {@code 400 (Bad Request)} if the celebDTO is not valid,
-     * or with status {@code 500 (Internal Server Error)} if the celebDTO couldn't be updated.
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body
+     *         the updated celebDTO, or with status {@code 400 (Bad Request)} if the
+     *         celebDTO is not valid, or with status
+     *         {@code 500 (Internal Server Error)} if the celebDTO couldn't be
+     *         updated.
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PutMapping("/celebs/{id}")
@@ -100,7 +122,12 @@ public class CelebResource {
             throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound");
         }
 
-        CelebDTO result = celebService.save(celebDTO);
+        // NOTE: Only admins can change an Object (that belongs to everyone)
+        CelebDTO result = new CelebDTO();
+        if (SecurityUtils.hasCurrentUserThisAuthority(AuthoritiesConstants.ADMIN)) {
+            result = celebService.save(celebDTO);
+        }
+
         return ResponseEntity
             .ok()
             .headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, celebDTO.getId().toString()))
@@ -108,14 +135,17 @@ public class CelebResource {
     }
 
     /**
-     * {@code PATCH  /celebs/:id} : Partial updates given fields of an existing celeb, field will ignore if it is null
+     * {@code PATCH  /celebs/:id} : Partial updates given fields of an existing
+     * celeb, field will ignore if it is null
      *
-     * @param id the id of the celebDTO to save.
+     * @param id       the id of the celebDTO to save.
      * @param celebDTO the celebDTO to update.
-     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated celebDTO,
-     * or with status {@code 400 (Bad Request)} if the celebDTO is not valid,
-     * or with status {@code 404 (Not Found)} if the celebDTO is not found,
-     * or with status {@code 500 (Internal Server Error)} if the celebDTO couldn't be updated.
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body
+     *         the updated celebDTO, or with status {@code 400 (Bad Request)} if the
+     *         celebDTO is not valid, or with status {@code 404 (Not Found)} if the
+     *         celebDTO is not found, or with status
+     *         {@code 500 (Internal Server Error)} if the celebDTO couldn't be
+     *         updated.
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PatchMapping(value = "/celebs/{id}", consumes = "application/merge-patch+json")
@@ -135,7 +165,13 @@ public class CelebResource {
             throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound");
         }
 
+        // NOTE: Only admins can change an Object (that belongs to everyone)
         Optional<CelebDTO> result = celebService.partialUpdate(celebDTO);
+        if (SecurityUtils.hasCurrentUserThisAuthority(AuthoritiesConstants.ADMIN)) {
+            if (result.isPresent()) {
+                celebService.save(celebDTO);
+            }
+        }
 
         return ResponseUtil.wrapOrNotFound(
             result,
@@ -148,12 +184,16 @@ public class CelebResource {
      *
      * @param pageable the pagination information.
      * @param criteria the criteria which the requested entities should match.
-     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of celebs in body.
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list
+     *         of celebs in body.
      */
     @GetMapping("/celebs")
     public ResponseEntity<List<CelebDTO>> getAllCelebs(CelebCriteria criteria, Pageable pageable) {
         log.debug("REST request to get Celebs by criteria: {}", criteria);
+
+        // NOTE: If anyone can use this Object, anyone can Create & Read any object
         Page<CelebDTO> page = celebQueryService.findByCriteria(criteria, pageable);
+
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
@@ -162,7 +202,8 @@ public class CelebResource {
      * {@code GET  /celebs/count} : count all the celebs.
      *
      * @param criteria the criteria which the requested entities should match.
-     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the count in body.
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the count
+     *         in body.
      */
     @GetMapping("/celebs/count")
     public ResponseEntity<Long> countCelebs(CelebCriteria criteria) {
@@ -174,12 +215,16 @@ public class CelebResource {
      * {@code GET  /celebs/:id} : get the "id" celeb.
      *
      * @param id the id of the celebDTO to retrieve.
-     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the celebDTO, or with status {@code 404 (Not Found)}.
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body
+     *         the celebDTO, or with status {@code 404 (Not Found)}.
      */
     @GetMapping("/celebs/{id}")
     public ResponseEntity<CelebDTO> getCeleb(@PathVariable Long id) {
         log.debug("REST request to get Celeb : {}", id);
+
+        // NOTE: If anyone can use this Object, anyone can Create & Read any object
         Optional<CelebDTO> celebDTO = celebService.findOne(id);
+
         return ResponseUtil.wrapOrNotFound(celebDTO);
     }
 
@@ -192,7 +237,12 @@ public class CelebResource {
     @DeleteMapping("/celebs/{id}")
     public ResponseEntity<Void> deleteCeleb(@PathVariable Long id) {
         log.debug("REST request to delete Celeb : {}", id);
-        celebService.delete(id);
+
+        // NOTE: Only admins can delete an Object (that belongs to everyone)
+        if (SecurityUtils.hasCurrentUserThisAuthority(AuthoritiesConstants.ADMIN)) {
+            celebService.delete(id);
+        }
+
         return ResponseEntity
             .noContent()
             .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))

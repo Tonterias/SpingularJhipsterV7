@@ -1,6 +1,11 @@
 package com.spingular.cms.web.rest;
 
+import com.spingular.cms.domain.Appuser;
+import com.spingular.cms.repository.AppuserRepository;
 import com.spingular.cms.repository.NotificationRepository;
+import com.spingular.cms.repository.UserRepository;
+import com.spingular.cms.security.AuthoritiesConstants;
+import com.spingular.cms.security.SecurityUtils;
 import com.spingular.cms.service.NotificationQueryService;
 import com.spingular.cms.service.NotificationService;
 import com.spingular.cms.service.criteria.NotificationCriteria;
@@ -19,10 +24,18 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import tech.jhipster.service.filter.LongFilter;
 import tech.jhipster.web.util.HeaderUtil;
 import tech.jhipster.web.util.PaginationUtil;
 import tech.jhipster.web.util.ResponseUtil;
@@ -47,21 +60,31 @@ public class NotificationResource {
 
     private final NotificationQueryService notificationQueryService;
 
+    private final UserRepository userRepository;
+
+    private final AppuserRepository appuserRepository;
+
     public NotificationResource(
         NotificationService notificationService,
         NotificationRepository notificationRepository,
-        NotificationQueryService notificationQueryService
+        NotificationQueryService notificationQueryService,
+        UserRepository userRepository,
+        AppuserRepository appuserRepository
     ) {
         this.notificationService = notificationService;
         this.notificationRepository = notificationRepository;
         this.notificationQueryService = notificationQueryService;
+        this.userRepository = userRepository;
+        this.appuserRepository = appuserRepository;
     }
 
     /**
      * {@code POST  /notifications} : Create a new notification.
      *
      * @param notificationDTO the notificationDTO to create.
-     * @return the {@link ResponseEntity} with status {@code 201 (Created)} and with body the new notificationDTO, or with status {@code 400 (Bad Request)} if the notification has already an ID.
+     * @return the {@link ResponseEntity} with status {@code 201 (Created)} and with
+     *         body the new notificationDTO, or with status
+     *         {@code 400 (Bad Request)} if the notification has already an ID.
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PostMapping("/notifications")
@@ -71,7 +94,24 @@ public class NotificationResource {
         if (notificationDTO.getId() != null) {
             throw new BadRequestAlertException("A new notification cannot already have an ID", ENTITY_NAME, "idexists");
         }
-        NotificationDTO result = notificationService.save(notificationDTO);
+
+        NotificationDTO result = new NotificationDTO();
+        if (userRepository.findOneByLogin(SecurityUtils.getCurrentUserLogin().get()).isPresent()) {
+            if (SecurityUtils.hasCurrentUserThisAuthority(AuthoritiesConstants.USER)) {
+                Appuser appuser = appuserRepository.findByUserId(
+                    userRepository.findOneByLogin(SecurityUtils.getCurrentUserLogin().get()).get().getId()
+                );
+                if (notificationDTO.getAppuser().getId().equals(appuser.getId())) {
+                    result = notificationService.save(notificationDTO);
+                    log.debug("Notification DTO to create, belongs to current user: {}", notificationDTO.toString());
+                }
+            }
+            if (SecurityUtils.hasCurrentUserThisAuthority(AuthoritiesConstants.ADMIN)) {
+                result = notificationService.save(notificationDTO);
+                log.debug("Notification DTO to create, belongs to current user: {}", notificationDTO.toString());
+            }
+        }
+
         return ResponseEntity
             .created(new URI("/api/notifications/" + result.getId()))
             .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getId().toString()))
@@ -81,11 +121,13 @@ public class NotificationResource {
     /**
      * {@code PUT  /notifications/:id} : Updates an existing notification.
      *
-     * @param id the id of the notificationDTO to save.
+     * @param id              the id of the notificationDTO to save.
      * @param notificationDTO the notificationDTO to update.
-     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated notificationDTO,
-     * or with status {@code 400 (Bad Request)} if the notificationDTO is not valid,
-     * or with status {@code 500 (Internal Server Error)} if the notificationDTO couldn't be updated.
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body
+     *         the updated notificationDTO, or with status {@code 400 (Bad Request)}
+     *         if the notificationDTO is not valid, or with status
+     *         {@code 500 (Internal Server Error)} if the notificationDTO couldn't
+     *         be updated.
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PutMapping("/notifications/{id}")
@@ -105,7 +147,23 @@ public class NotificationResource {
             throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound");
         }
 
-        NotificationDTO result = notificationService.save(notificationDTO);
+        NotificationDTO result = notificationService.findOne(id).orElse(notificationDTO);
+        if (userRepository.findOneByLogin(SecurityUtils.getCurrentUserLogin().get()).isPresent()) {
+            if (SecurityUtils.hasCurrentUserThisAuthority(AuthoritiesConstants.USER)) {
+                Appuser appuser = appuserRepository.findByUserId(
+                    userRepository.findOneByLogin(SecurityUtils.getCurrentUserLogin().get()).get().getId()
+                );
+                if (notificationDTO.getAppuser().getId().equals(appuser.getId())) {
+                    result = notificationService.save(notificationDTO);
+                    log.debug("Notification DTO to update, belongs to current user: {}", notificationDTO.toString());
+                }
+            }
+            if (SecurityUtils.hasCurrentUserThisAuthority(AuthoritiesConstants.ADMIN)) {
+                result = notificationService.save(notificationDTO);
+                log.debug("Notification DTO to update, belongs to current user: {}", notificationDTO.toString());
+            }
+        }
+
         return ResponseEntity
             .ok()
             .headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, notificationDTO.getId().toString()))
@@ -113,14 +171,17 @@ public class NotificationResource {
     }
 
     /**
-     * {@code PATCH  /notifications/:id} : Partial updates given fields of an existing notification, field will ignore if it is null
+     * {@code PATCH  /notifications/:id} : Partial updates given fields of an
+     * existing notification, field will ignore if it is null
      *
-     * @param id the id of the notificationDTO to save.
+     * @param id              the id of the notificationDTO to save.
      * @param notificationDTO the notificationDTO to update.
-     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated notificationDTO,
-     * or with status {@code 400 (Bad Request)} if the notificationDTO is not valid,
-     * or with status {@code 404 (Not Found)} if the notificationDTO is not found,
-     * or with status {@code 500 (Internal Server Error)} if the notificationDTO couldn't be updated.
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body
+     *         the updated notificationDTO, or with status {@code 400 (Bad Request)}
+     *         if the notificationDTO is not valid, or with status
+     *         {@code 404 (Not Found)} if the notificationDTO is not found, or with
+     *         status {@code 500 (Internal Server Error)} if the notificationDTO
+     *         couldn't be updated.
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PatchMapping(value = "/notifications/{id}", consumes = "application/merge-patch+json")
@@ -140,7 +201,22 @@ public class NotificationResource {
             throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound");
         }
 
-        Optional<NotificationDTO> result = notificationService.partialUpdate(notificationDTO);
+        Optional<NotificationDTO> result = notificationService.findOne(id);
+        if (userRepository.findOneByLogin(SecurityUtils.getCurrentUserLogin().get()).isPresent()) {
+            if (SecurityUtils.hasCurrentUserThisAuthority(AuthoritiesConstants.USER)) {
+                Appuser appuser = appuserRepository.findByUserId(
+                    userRepository.findOneByLogin(SecurityUtils.getCurrentUserLogin().get()).get().getId()
+                );
+                if (notificationDTO.getAppuser().getId().equals(appuser.getId())) {
+                    result = notificationService.partialUpdate(notificationDTO);
+                    log.debug("Notification DTO to partial update, belongs to current user: {}", notificationDTO.toString());
+                }
+            }
+            if (SecurityUtils.hasCurrentUserThisAuthority(AuthoritiesConstants.ADMIN)) {
+                result = notificationService.partialUpdate(notificationDTO);
+                log.debug("Notification DTO to partial update, belongs to current user: {}", notificationDTO.toString());
+            }
+        }
 
         return ResponseUtil.wrapOrNotFound(
             result,
@@ -153,12 +229,31 @@ public class NotificationResource {
      *
      * @param pageable the pagination information.
      * @param criteria the criteria which the requested entities should match.
-     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of notifications in body.
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list
+     *         of notifications in body.
      */
     @GetMapping("/notifications")
     public ResponseEntity<List<NotificationDTO>> getAllNotifications(NotificationCriteria criteria, Pageable pageable) {
         log.debug("REST request to get Notifications by criteria: {}", criteria);
-        Page<NotificationDTO> page = notificationQueryService.findByCriteria(criteria, pageable);
+
+        Page<NotificationDTO> page;
+        if (
+            SecurityUtils.hasCurrentUserThisAuthority(AuthoritiesConstants.ADMIN) ||
+            SecurityUtils.hasCurrentUserThisAuthority(AuthoritiesConstants.USER)
+        ) {
+            NotificationCriteria loggedCriteria = new NotificationCriteria();
+            LongFilter longFilter = new LongFilter();
+            if (userRepository.findOneByLogin(SecurityUtils.getCurrentUserLogin().get()).isPresent()) {
+                Appuser loggedAppuser = appuserRepository.findByUserId(
+                    userRepository.findOneByLogin(SecurityUtils.getCurrentUserLogin().get()).get().getId()
+                );
+                loggedCriteria.setAppuserId((LongFilter) longFilter.setEquals(loggedAppuser.getId()));
+            }
+            page = notificationQueryService.findByCriteria(loggedCriteria, pageable);
+        } else {
+            page = notificationQueryService.findByCriteria(criteria, pageable);
+        }
+
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
@@ -167,7 +262,8 @@ public class NotificationResource {
      * {@code GET  /notifications/count} : count all the notifications.
      *
      * @param criteria the criteria which the requested entities should match.
-     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the count in body.
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the count
+     *         in body.
      */
     @GetMapping("/notifications/count")
     public ResponseEntity<Long> countNotifications(NotificationCriteria criteria) {
@@ -179,13 +275,22 @@ public class NotificationResource {
      * {@code GET  /notifications/:id} : get the "id" notification.
      *
      * @param id the id of the notificationDTO to retrieve.
-     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the notificationDTO, or with status {@code 404 (Not Found)}.
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body
+     *         the notificationDTO, or with status {@code 404 (Not Found)}.
      */
     @GetMapping("/notifications/{id}")
     public ResponseEntity<NotificationDTO> getNotification(@PathVariable Long id) {
         log.debug("REST request to get Notification : {}", id);
         Optional<NotificationDTO> notificationDTO = notificationService.findOne(id);
-        return ResponseUtil.wrapOrNotFound(notificationDTO);
+
+        if (
+            SecurityUtils.hasCurrentUserThisAuthority(AuthoritiesConstants.USER) ||
+            SecurityUtils.hasCurrentUserThisAuthority(AuthoritiesConstants.ADMIN)
+        ) {
+            return ResponseUtil.wrapOrNotFound(notificationDTO);
+        }
+
+        return ResponseUtil.wrapOrNotFound(null);
     }
 
     /**
@@ -197,7 +302,24 @@ public class NotificationResource {
     @DeleteMapping("/notifications/{id}")
     public ResponseEntity<Void> deleteNotification(@PathVariable Long id) {
         log.debug("REST request to delete Notification : {}", id);
-        notificationService.delete(id);
+
+        if (userRepository.findOneByLogin(SecurityUtils.getCurrentUserLogin().get()).isPresent()) {
+            if (SecurityUtils.hasCurrentUserThisAuthority(AuthoritiesConstants.USER)) {
+                Appuser loggedAppuser = appuserRepository.findByUserId(
+                    userRepository.findOneByLogin(SecurityUtils.getCurrentUserLogin().get()).get().getId()
+                );
+                NotificationDTO notificationDTO = notificationService.findOne(id).orElse(new NotificationDTO());
+                if (notificationDTO.getAppuser().getId().equals(loggedAppuser.getId())) {
+                    notificationService.delete(id);
+                    log.debug("Notification DTO to delete, belongs to current user: {}", notificationDTO.toString());
+                    log.debug("Notification DTO to delete, belongs to Appuser: {}", loggedAppuser.getId());
+                }
+            }
+            if (SecurityUtils.hasCurrentUserThisAuthority(AuthoritiesConstants.ADMIN)) {
+                notificationService.delete(id);
+            }
+        }
+
         return ResponseEntity
             .noContent()
             .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))

@@ -1,28 +1,41 @@
 package com.spingular.cms.web.rest;
 
-import com.spingular.cms.repository.CinterestRepository;
-import com.spingular.cms.service.CinterestQueryService;
-import com.spingular.cms.service.CinterestService;
-import com.spingular.cms.service.criteria.CinterestCriteria;
-import com.spingular.cms.service.dto.CinterestDTO;
-import com.spingular.cms.web.rest.errors.BadRequestAlertException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
+
+import com.spingular.cms.repository.CinterestRepository;
+import com.spingular.cms.security.AuthoritiesConstants;
+import com.spingular.cms.security.SecurityUtils;
+import com.spingular.cms.service.CinterestQueryService;
+import com.spingular.cms.service.CinterestService;
+import com.spingular.cms.service.criteria.CinterestCriteria;
+import com.spingular.cms.service.dto.CinterestDTO;
+import com.spingular.cms.web.rest.errors.BadRequestAlertException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
 import tech.jhipster.web.util.HeaderUtil;
 import tech.jhipster.web.util.PaginationUtil;
 import tech.jhipster.web.util.ResponseUtil;
@@ -47,11 +60,8 @@ public class CinterestResource {
 
     private final CinterestQueryService cinterestQueryService;
 
-    public CinterestResource(
-        CinterestService cinterestService,
-        CinterestRepository cinterestRepository,
-        CinterestQueryService cinterestQueryService
-    ) {
+    public CinterestResource(CinterestService cinterestService, CinterestRepository cinterestRepository,
+            CinterestQueryService cinterestQueryService) {
         this.cinterestService = cinterestService;
         this.cinterestRepository = cinterestRepository;
         this.cinterestQueryService = cinterestQueryService;
@@ -61,37 +71,47 @@ public class CinterestResource {
      * {@code POST  /cinterests} : Create a new cinterest.
      *
      * @param cinterestDTO the cinterestDTO to create.
-     * @return the {@link ResponseEntity} with status {@code 201 (Created)} and with body the new cinterestDTO, or with status {@code 400 (Bad Request)} if the cinterest has already an ID.
+     * @return the {@link ResponseEntity} with status {@code 201 (Created)} and with
+     *         body the new cinterestDTO, or with status {@code 400 (Bad Request)}
+     *         if the cinterest has already an ID.
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PostMapping("/cinterests")
-    public ResponseEntity<CinterestDTO> createCinterest(@Valid @RequestBody CinterestDTO cinterestDTO) throws URISyntaxException {
+    public ResponseEntity<CinterestDTO> createCinterest(@Valid @RequestBody CinterestDTO cinterestDTO)
+            throws URISyntaxException {
         log.debug("REST request to save Cinterest : {}", cinterestDTO);
         if (cinterestDTO.getId() != null) {
             throw new BadRequestAlertException("A new cinterest cannot already have an ID", ENTITY_NAME, "idexists");
         }
-        CinterestDTO result = cinterestService.save(cinterestDTO);
+
+        // NOTE: If anyone can use this Object, anyone can Create & Read any object
+        CinterestDTO result = new CinterestDTO();
+        if (SecurityUtils.hasCurrentUserThisAuthority(AuthoritiesConstants.USER)
+                || SecurityUtils.hasCurrentUserThisAuthority(AuthoritiesConstants.ADMIN)) {
+            result = cinterestService.save(cinterestDTO);
+        }
+
         return ResponseEntity
-            .created(new URI("/api/cinterests/" + result.getId()))
-            .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getId().toString()))
-            .body(result);
+                .created(new URI("/api/cinterests/" + result.getId())).headers(HeaderUtil
+                        .createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getId().toString()))
+                .body(result);
     }
 
     /**
      * {@code PUT  /cinterests/:id} : Updates an existing cinterest.
      *
-     * @param id the id of the cinterestDTO to save.
+     * @param id           the id of the cinterestDTO to save.
      * @param cinterestDTO the cinterestDTO to update.
-     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated cinterestDTO,
-     * or with status {@code 400 (Bad Request)} if the cinterestDTO is not valid,
-     * or with status {@code 500 (Internal Server Error)} if the cinterestDTO couldn't be updated.
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body
+     *         the updated cinterestDTO, or with status {@code 400 (Bad Request)} if
+     *         the cinterestDTO is not valid, or with status
+     *         {@code 500 (Internal Server Error)} if the cinterestDTO couldn't be
+     *         updated.
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PutMapping("/cinterests/{id}")
-    public ResponseEntity<CinterestDTO> updateCinterest(
-        @PathVariable(value = "id", required = false) final Long id,
-        @Valid @RequestBody CinterestDTO cinterestDTO
-    ) throws URISyntaxException {
+    public ResponseEntity<CinterestDTO> updateCinterest(@PathVariable(value = "id", required = false) final Long id,
+            @Valid @RequestBody CinterestDTO cinterestDTO) throws URISyntaxException {
         log.debug("REST request to update Cinterest : {}, {}", id, cinterestDTO);
         if (cinterestDTO.getId() == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
@@ -104,29 +124,35 @@ public class CinterestResource {
             throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound");
         }
 
-        CinterestDTO result = cinterestService.save(cinterestDTO);
-        return ResponseEntity
-            .ok()
-            .headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, cinterestDTO.getId().toString()))
-            .body(result);
+       // NOTE: Only admins can change an Object (that belongs to everyone)
+        CinterestDTO result = new CinterestDTO();
+        if (SecurityUtils.hasCurrentUserThisAuthority(AuthoritiesConstants.ADMIN)) {
+            result = cinterestService.save(cinterestDTO);
+        }
+
+        return ResponseEntity.ok().headers(
+                HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, cinterestDTO.getId().toString()))
+                .body(result);
     }
 
     /**
-     * {@code PATCH  /cinterests/:id} : Partial updates given fields of an existing cinterest, field will ignore if it is null
+     * {@code PATCH  /cinterests/:id} : Partial updates given fields of an existing
+     * cinterest, field will ignore if it is null
      *
-     * @param id the id of the cinterestDTO to save.
+     * @param id           the id of the cinterestDTO to save.
      * @param cinterestDTO the cinterestDTO to update.
-     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated cinterestDTO,
-     * or with status {@code 400 (Bad Request)} if the cinterestDTO is not valid,
-     * or with status {@code 404 (Not Found)} if the cinterestDTO is not found,
-     * or with status {@code 500 (Internal Server Error)} if the cinterestDTO couldn't be updated.
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body
+     *         the updated cinterestDTO, or with status {@code 400 (Bad Request)} if
+     *         the cinterestDTO is not valid, or with status {@code 404 (Not Found)}
+     *         if the cinterestDTO is not found, or with status
+     *         {@code 500 (Internal Server Error)} if the cinterestDTO couldn't be
+     *         updated.
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PatchMapping(value = "/cinterests/{id}", consumes = "application/merge-patch+json")
     public ResponseEntity<CinterestDTO> partialUpdateCinterest(
-        @PathVariable(value = "id", required = false) final Long id,
-        @NotNull @RequestBody CinterestDTO cinterestDTO
-    ) throws URISyntaxException {
+            @PathVariable(value = "id", required = false) final Long id,
+            @NotNull @RequestBody CinterestDTO cinterestDTO) throws URISyntaxException {
         log.debug("REST request to partial update Cinterest partially : {}, {}", id, cinterestDTO);
         if (cinterestDTO.getId() == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
@@ -139,12 +165,16 @@ public class CinterestResource {
             throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound");
         }
 
+       // NOTE: Only admins can change an Object (that belongs to everyone)
         Optional<CinterestDTO> result = cinterestService.partialUpdate(cinterestDTO);
+        if (SecurityUtils.hasCurrentUserThisAuthority(AuthoritiesConstants.ADMIN)) {
+            if (result.isPresent()) {
+                cinterestService.save(cinterestDTO);
+            }
+        }
 
-        return ResponseUtil.wrapOrNotFound(
-            result,
-            HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, cinterestDTO.getId().toString())
-        );
+        return ResponseUtil.wrapOrNotFound(result, HeaderUtil.createEntityUpdateAlert(applicationName, true,
+                ENTITY_NAME, cinterestDTO.getId().toString()));
     }
 
     /**
@@ -152,13 +182,18 @@ public class CinterestResource {
      *
      * @param pageable the pagination information.
      * @param criteria the criteria which the requested entities should match.
-     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of cinterests in body.
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list
+     *         of cinterests in body.
      */
     @GetMapping("/cinterests")
     public ResponseEntity<List<CinterestDTO>> getAllCinterests(CinterestCriteria criteria, Pageable pageable) {
         log.debug("REST request to get Cinterests by criteria: {}", criteria);
+
+        // NOTE: If anyone can use this Object, anyone can Create & Read any object
         Page<CinterestDTO> page = cinterestQueryService.findByCriteria(criteria, pageable);
-        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
+
+        HttpHeaders headers = PaginationUtil
+                .generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
 
@@ -166,7 +201,8 @@ public class CinterestResource {
      * {@code GET  /cinterests/count} : count all the cinterests.
      *
      * @param criteria the criteria which the requested entities should match.
-     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the count in body.
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the count
+     *         in body.
      */
     @GetMapping("/cinterests/count")
     public ResponseEntity<Long> countCinterests(CinterestCriteria criteria) {
@@ -178,13 +214,17 @@ public class CinterestResource {
      * {@code GET  /cinterests/:id} : get the "id" cinterest.
      *
      * @param id the id of the cinterestDTO to retrieve.
-     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the cinterestDTO, or with status {@code 404 (Not Found)}.
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body
+     *         the cinterestDTO, or with status {@code 404 (Not Found)}.
      */
     @GetMapping("/cinterests/{id}")
     public ResponseEntity<CinterestDTO> getCinterest(@PathVariable Long id) {
         log.debug("REST request to get Cinterest : {}", id);
+
+        // NOTE: If anyone can use this Object, anyone can Create & Read any object
         Optional<CinterestDTO> cinterestDTO = cinterestService.findOne(id);
-        return ResponseUtil.wrapOrNotFound(cinterestDTO);
+
+        return ResponseUtil.wrapOrNotFound(cinterestDTO);    
     }
 
     /**
@@ -196,10 +236,14 @@ public class CinterestResource {
     @DeleteMapping("/cinterests/{id}")
     public ResponseEntity<Void> deleteCinterest(@PathVariable Long id) {
         log.debug("REST request to delete Cinterest : {}", id);
-        cinterestService.delete(id);
-        return ResponseEntity
-            .noContent()
-            .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
-            .build();
+
+        // NOTE: Only admins can delete an Object (that belongs to everyone)
+        if (SecurityUtils.hasCurrentUserThisAuthority(AuthoritiesConstants.ADMIN)) {
+            cinterestService.delete(id);
+        }
+
+        return ResponseEntity.noContent()
+                .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
+                .build();
     }
 }

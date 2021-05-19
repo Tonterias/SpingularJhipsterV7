@@ -1,6 +1,11 @@
 package com.spingular.cms.web.rest;
 
+import com.spingular.cms.domain.Appuser;
+import com.spingular.cms.repository.AppuserRepository;
 import com.spingular.cms.repository.CommunityRepository;
+import com.spingular.cms.repository.UserRepository;
+import com.spingular.cms.security.AuthoritiesConstants;
+import com.spingular.cms.security.SecurityUtils;
 import com.spingular.cms.service.CommunityQueryService;
 import com.spingular.cms.service.CommunityService;
 import com.spingular.cms.service.criteria.CommunityCriteria;
@@ -19,10 +24,18 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import tech.jhipster.service.filter.LongFilter;
 import tech.jhipster.web.util.HeaderUtil;
 import tech.jhipster.web.util.PaginationUtil;
 import tech.jhipster.web.util.ResponseUtil;
@@ -47,21 +60,31 @@ public class CommunityResource {
 
     private final CommunityQueryService communityQueryService;
 
+    private final UserRepository userRepository;
+
+    private final AppuserRepository appuserRepository;
+
     public CommunityResource(
         CommunityService communityService,
         CommunityRepository communityRepository,
-        CommunityQueryService communityQueryService
+        CommunityQueryService communityQueryService,
+        UserRepository userRepository,
+        AppuserRepository appuserRepository
     ) {
         this.communityService = communityService;
         this.communityRepository = communityRepository;
         this.communityQueryService = communityQueryService;
+        this.userRepository = userRepository;
+        this.appuserRepository = appuserRepository;
     }
 
     /**
      * {@code POST  /communities} : Create a new community.
      *
      * @param communityDTO the communityDTO to create.
-     * @return the {@link ResponseEntity} with status {@code 201 (Created)} and with body the new communityDTO, or with status {@code 400 (Bad Request)} if the community has already an ID.
+     * @return the {@link ResponseEntity} with status {@code 201 (Created)} and with
+     *         body the new communityDTO, or with status {@code 400 (Bad Request)}
+     *         if the community has already an ID.
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PostMapping("/communities")
@@ -70,7 +93,24 @@ public class CommunityResource {
         if (communityDTO.getId() != null) {
             throw new BadRequestAlertException("A new community cannot already have an ID", ENTITY_NAME, "idexists");
         }
-        CommunityDTO result = communityService.save(communityDTO);
+
+        CommunityDTO result = new CommunityDTO();
+        if (userRepository.findOneByLogin(SecurityUtils.getCurrentUserLogin().get()).isPresent()) {
+            if (SecurityUtils.hasCurrentUserThisAuthority(AuthoritiesConstants.USER)) {
+                Appuser appuser = appuserRepository.findByUserId(
+                    userRepository.findOneByLogin(SecurityUtils.getCurrentUserLogin().get()).get().getId()
+                );
+                if (communityDTO.getAppuser().getId().equals(appuser.getId())) {
+                    result = communityService.save(communityDTO);
+                    log.debug("Community DTO to create, belongs to current user: {}", communityDTO.toString());
+                }
+            }
+            if (SecurityUtils.hasCurrentUserThisAuthority(AuthoritiesConstants.ADMIN)) {
+                result = communityService.save(communityDTO);
+                log.debug("Community DTO to create, belongs to current user: {}", communityDTO.toString());
+            }
+        }
+
         return ResponseEntity
             .created(new URI("/api/communities/" + result.getId()))
             .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getId().toString()))
@@ -80,11 +120,13 @@ public class CommunityResource {
     /**
      * {@code PUT  /communities/:id} : Updates an existing community.
      *
-     * @param id the id of the communityDTO to save.
+     * @param id           the id of the communityDTO to save.
      * @param communityDTO the communityDTO to update.
-     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated communityDTO,
-     * or with status {@code 400 (Bad Request)} if the communityDTO is not valid,
-     * or with status {@code 500 (Internal Server Error)} if the communityDTO couldn't be updated.
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body
+     *         the updated communityDTO, or with status {@code 400 (Bad Request)} if
+     *         the communityDTO is not valid, or with status
+     *         {@code 500 (Internal Server Error)} if the communityDTO couldn't be
+     *         updated.
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PutMapping("/communities/{id}")
@@ -104,7 +146,23 @@ public class CommunityResource {
             throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound");
         }
 
-        CommunityDTO result = communityService.save(communityDTO);
+        CommunityDTO result = communityService.findOne(id).orElse(communityDTO);
+        if (userRepository.findOneByLogin(SecurityUtils.getCurrentUserLogin().get()).isPresent()) {
+            if (SecurityUtils.hasCurrentUserThisAuthority(AuthoritiesConstants.USER)) {
+                Appuser appuser = appuserRepository.findByUserId(
+                    userRepository.findOneByLogin(SecurityUtils.getCurrentUserLogin().get()).get().getId()
+                );
+                if (communityDTO.getAppuser().getId().equals(appuser.getId())) {
+                    result = communityService.save(communityDTO);
+                    log.debug("Community DTO to update, belongs to current user: {}", communityDTO.toString());
+                }
+            }
+            if (SecurityUtils.hasCurrentUserThisAuthority(AuthoritiesConstants.ADMIN)) {
+                result = communityService.save(communityDTO);
+                log.debug("Community DTO to update, belongs to current user: {}", communityDTO.toString());
+            }
+        }
+
         return ResponseEntity
             .ok()
             .headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, communityDTO.getId().toString()))
@@ -112,14 +170,17 @@ public class CommunityResource {
     }
 
     /**
-     * {@code PATCH  /communities/:id} : Partial updates given fields of an existing community, field will ignore if it is null
+     * {@code PATCH  /communities/:id} : Partial updates given fields of an existing
+     * community, field will ignore if it is null
      *
-     * @param id the id of the communityDTO to save.
+     * @param id           the id of the communityDTO to save.
      * @param communityDTO the communityDTO to update.
-     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated communityDTO,
-     * or with status {@code 400 (Bad Request)} if the communityDTO is not valid,
-     * or with status {@code 404 (Not Found)} if the communityDTO is not found,
-     * or with status {@code 500 (Internal Server Error)} if the communityDTO couldn't be updated.
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body
+     *         the updated communityDTO, or with status {@code 400 (Bad Request)} if
+     *         the communityDTO is not valid, or with status {@code 404 (Not Found)}
+     *         if the communityDTO is not found, or with status
+     *         {@code 500 (Internal Server Error)} if the communityDTO couldn't be
+     *         updated.
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PatchMapping(value = "/communities/{id}", consumes = "application/merge-patch+json")
@@ -139,7 +200,22 @@ public class CommunityResource {
             throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound");
         }
 
-        Optional<CommunityDTO> result = communityService.partialUpdate(communityDTO);
+        Optional<CommunityDTO> result = communityService.findOne(id);
+        if (userRepository.findOneByLogin(SecurityUtils.getCurrentUserLogin().get()).isPresent()) {
+            if (SecurityUtils.hasCurrentUserThisAuthority(AuthoritiesConstants.USER)) {
+                Appuser appuser = appuserRepository.findByUserId(
+                    userRepository.findOneByLogin(SecurityUtils.getCurrentUserLogin().get()).get().getId()
+                );
+                if (communityDTO.getAppuser().getId().equals(appuser.getId())) {
+                    result = communityService.partialUpdate(communityDTO);
+                    log.debug("Community DTO to partial update, belongs to current user: {}", communityDTO.toString());
+                }
+            }
+            if (SecurityUtils.hasCurrentUserThisAuthority(AuthoritiesConstants.ADMIN)) {
+                result = communityService.partialUpdate(communityDTO);
+                log.debug("Community DTO to partial update, belongs to current user: {}", communityDTO.toString());
+            }
+        }
 
         return ResponseUtil.wrapOrNotFound(
             result,
@@ -152,12 +228,16 @@ public class CommunityResource {
      *
      * @param pageable the pagination information.
      * @param criteria the criteria which the requested entities should match.
-     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of communities in body.
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list
+     *         of communities in body.
      */
     @GetMapping("/communities")
     public ResponseEntity<List<CommunityDTO>> getAllCommunities(CommunityCriteria criteria, Pageable pageable) {
         log.debug("REST request to get Communities by criteria: {}", criteria);
+
+        // Note: Any visitor can see them all
         Page<CommunityDTO> page = communityQueryService.findByCriteria(criteria, pageable);
+
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
@@ -166,7 +246,8 @@ public class CommunityResource {
      * {@code GET  /communities/count} : count all the communities.
      *
      * @param criteria the criteria which the requested entities should match.
-     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the count in body.
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the count
+     *         in body.
      */
     @GetMapping("/communities/count")
     public ResponseEntity<Long> countCommunities(CommunityCriteria criteria) {
@@ -178,12 +259,15 @@ public class CommunityResource {
      * {@code GET  /communities/:id} : get the "id" community.
      *
      * @param id the id of the communityDTO to retrieve.
-     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the communityDTO, or with status {@code 404 (Not Found)}.
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body
+     *         the communityDTO, or with status {@code 404 (Not Found)}.
      */
     @GetMapping("/communities/{id}")
     public ResponseEntity<CommunityDTO> getCommunity(@PathVariable Long id) {
         log.debug("REST request to get Community : {}", id);
         Optional<CommunityDTO> communityDTO = communityService.findOne(id);
+
+        // Note: Any visitor can see them all
         return ResponseUtil.wrapOrNotFound(communityDTO);
     }
 
@@ -196,7 +280,24 @@ public class CommunityResource {
     @DeleteMapping("/communities/{id}")
     public ResponseEntity<Void> deleteCommunity(@PathVariable Long id) {
         log.debug("REST request to delete Community : {}", id);
-        communityService.delete(id);
+
+        if (userRepository.findOneByLogin(SecurityUtils.getCurrentUserLogin().get()).isPresent()) {
+            if (SecurityUtils.hasCurrentUserThisAuthority(AuthoritiesConstants.USER)) {
+                Appuser loggedAppuser = appuserRepository.findByUserId(
+                    userRepository.findOneByLogin(SecurityUtils.getCurrentUserLogin().get()).get().getId()
+                );
+                CommunityDTO communityDTO = communityService.findOne(id).orElse(new CommunityDTO());
+                if (communityDTO.getAppuser().getId().equals(loggedAppuser.getId())) {
+                    communityService.delete(id);
+                    log.debug("Community DTO to delete, belongs to current user: {}", communityDTO.toString());
+                    log.debug("Community DTO to delete, belongs to Appuser: {}", loggedAppuser.getId());
+                }
+            }
+            if (SecurityUtils.hasCurrentUserThisAuthority(AuthoritiesConstants.ADMIN)) {
+                communityService.delete(id);
+            }
+        }
+
         return ResponseEntity
             .noContent()
             .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))

@@ -1,10 +1,18 @@
 package com.spingular.cms.web.rest;
 
+import com.spingular.cms.domain.Appuser;
+import com.spingular.cms.repository.AppuserRepository;
 import com.spingular.cms.repository.BlockuserRepository;
+import com.spingular.cms.repository.UserRepository;
+import com.spingular.cms.security.AuthoritiesConstants;
+import com.spingular.cms.security.SecurityUtils;
 import com.spingular.cms.service.BlockuserQueryService;
 import com.spingular.cms.service.BlockuserService;
+import com.spingular.cms.service.CommunityQueryService;
 import com.spingular.cms.service.criteria.BlockuserCriteria;
+import com.spingular.cms.service.criteria.CommunityCriteria;
 import com.spingular.cms.service.dto.BlockuserDTO;
+import com.spingular.cms.service.dto.CommunityDTO;
 import com.spingular.cms.web.rest.errors.BadRequestAlertException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -17,10 +25,18 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import tech.jhipster.service.filter.LongFilter;
 import tech.jhipster.web.util.HeaderUtil;
 import tech.jhipster.web.util.PaginationUtil;
 import tech.jhipster.web.util.ResponseUtil;
@@ -45,21 +61,35 @@ public class BlockuserResource {
 
     private final BlockuserQueryService blockuserQueryService;
 
+    private final UserRepository userRepository;
+
+    private final AppuserRepository appuserRepository;
+
+    private final CommunityQueryService communityQueryService;
+
     public BlockuserResource(
         BlockuserService blockuserService,
         BlockuserRepository blockuserRepository,
-        BlockuserQueryService blockuserQueryService
+        BlockuserQueryService blockuserQueryService,
+        UserRepository userRepository,
+        AppuserRepository appuserRepository,
+        CommunityQueryService communityQueryService
     ) {
         this.blockuserService = blockuserService;
         this.blockuserRepository = blockuserRepository;
         this.blockuserQueryService = blockuserQueryService;
+        this.userRepository = userRepository;
+        this.appuserRepository = appuserRepository;
+        this.communityQueryService = communityQueryService;
     }
 
     /**
      * {@code POST  /blockusers} : Create a new blockuser.
      *
      * @param blockuserDTO the blockuserDTO to create.
-     * @return the {@link ResponseEntity} with status {@code 201 (Created)} and with body the new blockuserDTO, or with status {@code 400 (Bad Request)} if the blockuser has already an ID.
+     * @return the {@link ResponseEntity} with status {@code 201 (Created)} and with
+     *         body the new blockuserDTO, or with status {@code 400 (Bad Request)}
+     *         if the blockuser has already an ID.
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PostMapping("/blockusers")
@@ -68,7 +98,40 @@ public class BlockuserResource {
         if (blockuserDTO.getId() != null) {
             throw new BadRequestAlertException("A new blockuser cannot already have an ID", ENTITY_NAME, "idexists");
         }
-        BlockuserDTO result = blockuserService.save(blockuserDTO);
+
+        BlockuserDTO result = new BlockuserDTO();
+        if (userRepository.findOneByLogin(SecurityUtils.getCurrentUserLogin().get()).isPresent()) {
+            Appuser loggedAppuser = appuserRepository.findByUserId(
+                userRepository.findOneByLogin(SecurityUtils.getCurrentUserLogin().get()).get().getId()
+            );
+            if (
+                (SecurityUtils.hasCurrentUserThisAuthority(AuthoritiesConstants.USER)) ||
+                (SecurityUtils.hasCurrentUserThisAuthority(AuthoritiesConstants.ADMIN))
+            ) {
+                if (blockuserDTO.getBlockeduser() != null) {
+                    if (blockuserDTO.getBlockeduser().getId().equals(loggedAppuser.getId())) {
+                        result = blockuserService.save(blockuserDTO);
+                        log.debug("Blockuser DTO to create, belongs to current user: {}", blockuserDTO.toString());
+                    }
+                } else if (blockuserDTO.getCblockeduser() != null) {
+                    List<CommunityDTO> listCommunities;
+                    CommunityCriteria loggedCriteria = new CommunityCriteria();
+                    LongFilter longFilter = new LongFilter();
+                    loggedCriteria.setAppuserId((LongFilter) longFilter.setEquals(loggedAppuser.getId()));
+                    listCommunities = communityQueryService.findByCriteria(loggedCriteria);
+
+                    for (CommunityDTO communityDTO : listCommunities) {
+                        if (blockuserDTO.getCblockeduser().getId().equals(communityDTO.getId())) {
+                            result = blockuserService.save(blockuserDTO);
+                            log.debug("Blockuser DTO to create, belongs to current user: {}", blockuserDTO.toString());
+                        }
+                    }
+                } else {
+                    log.debug("Blockuser DTO to create, IS EMPTY, check it out!");
+                }
+            }
+        }
+
         return ResponseEntity
             .created(new URI("/api/blockusers/" + result.getId()))
             .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getId().toString()))
@@ -78,11 +141,13 @@ public class BlockuserResource {
     /**
      * {@code PUT  /blockusers/:id} : Updates an existing blockuser.
      *
-     * @param id the id of the blockuserDTO to save.
+     * @param id           the id of the blockuserDTO to save.
      * @param blockuserDTO the blockuserDTO to update.
-     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated blockuserDTO,
-     * or with status {@code 400 (Bad Request)} if the blockuserDTO is not valid,
-     * or with status {@code 500 (Internal Server Error)} if the blockuserDTO couldn't be updated.
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body
+     *         the updated blockuserDTO, or with status {@code 400 (Bad Request)} if
+     *         the blockuserDTO is not valid, or with status
+     *         {@code 500 (Internal Server Error)} if the blockuserDTO couldn't be
+     *         updated.
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PutMapping("/blockusers/{id}")
@@ -102,7 +167,14 @@ public class BlockuserResource {
             throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound");
         }
 
-        BlockuserDTO result = blockuserService.save(blockuserDTO);
+        BlockuserDTO result = new BlockuserDTO();
+        if (
+            SecurityUtils.hasCurrentUserThisAuthority(AuthoritiesConstants.USER) ||
+            SecurityUtils.hasCurrentUserThisAuthority(AuthoritiesConstants.ADMIN)
+        ) {
+            result = blockuserService.save(blockuserDTO);
+        }
+
         return ResponseEntity
             .ok()
             .headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, blockuserDTO.getId().toString()))
@@ -110,14 +182,17 @@ public class BlockuserResource {
     }
 
     /**
-     * {@code PATCH  /blockusers/:id} : Partial updates given fields of an existing blockuser, field will ignore if it is null
+     * {@code PATCH  /blockusers/:id} : Partial updates given fields of an existing
+     * blockuser, field will ignore if it is null
      *
-     * @param id the id of the blockuserDTO to save.
+     * @param id           the id of the blockuserDTO to save.
      * @param blockuserDTO the blockuserDTO to update.
-     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated blockuserDTO,
-     * or with status {@code 400 (Bad Request)} if the blockuserDTO is not valid,
-     * or with status {@code 404 (Not Found)} if the blockuserDTO is not found,
-     * or with status {@code 500 (Internal Server Error)} if the blockuserDTO couldn't be updated.
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body
+     *         the updated blockuserDTO, or with status {@code 400 (Bad Request)} if
+     *         the blockuserDTO is not valid, or with status {@code 404 (Not Found)}
+     *         if the blockuserDTO is not found, or with status
+     *         {@code 500 (Internal Server Error)} if the blockuserDTO couldn't be
+     *         updated.
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PatchMapping(value = "/blockusers/{id}", consumes = "application/merge-patch+json")
@@ -137,7 +212,15 @@ public class BlockuserResource {
             throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound");
         }
 
-        Optional<BlockuserDTO> result = blockuserService.partialUpdate(blockuserDTO);
+        Optional<BlockuserDTO> result = blockuserService.findOne(id);
+        if (result.isPresent()) {
+            if (
+                SecurityUtils.hasCurrentUserThisAuthority(AuthoritiesConstants.USER) ||
+                SecurityUtils.hasCurrentUserThisAuthority(AuthoritiesConstants.ADMIN)
+            ) {
+                result = blockuserService.partialUpdate(blockuserDTO);
+            }
+        }
 
         return ResponseUtil.wrapOrNotFound(
             result,
@@ -150,12 +233,16 @@ public class BlockuserResource {
      *
      * @param pageable the pagination information.
      * @param criteria the criteria which the requested entities should match.
-     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of blockusers in body.
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list
+     *         of blockusers in body.
      */
     @GetMapping("/blockusers")
     public ResponseEntity<List<BlockuserDTO>> getAllBlockusers(BlockuserCriteria criteria, Pageable pageable) {
         log.debug("REST request to get Blockusers by criteria: {}", criteria);
+
+        // Note: Any visitor can see them all
         Page<BlockuserDTO> page = blockuserQueryService.findByCriteria(criteria, pageable);
+
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
@@ -164,7 +251,8 @@ public class BlockuserResource {
      * {@code GET  /blockusers/count} : count all the blockusers.
      *
      * @param criteria the criteria which the requested entities should match.
-     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the count in body.
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the count
+     *         in body.
      */
     @GetMapping("/blockusers/count")
     public ResponseEntity<Long> countBlockusers(BlockuserCriteria criteria) {
@@ -176,12 +264,16 @@ public class BlockuserResource {
      * {@code GET  /blockusers/:id} : get the "id" blockuser.
      *
      * @param id the id of the blockuserDTO to retrieve.
-     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the blockuserDTO, or with status {@code 404 (Not Found)}.
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body
+     *         the blockuserDTO, or with status {@code 404 (Not Found)}.
      */
     @GetMapping("/blockusers/{id}")
     public ResponseEntity<BlockuserDTO> getBlockuser(@PathVariable Long id) {
         log.debug("REST request to get Blockuser : {}", id);
+
+        // Note: Any visitor can see them all
         Optional<BlockuserDTO> blockuserDTO = blockuserService.findOne(id);
+
         return ResponseUtil.wrapOrNotFound(blockuserDTO);
     }
 
@@ -194,7 +286,48 @@ public class BlockuserResource {
     @DeleteMapping("/blockusers/{id}")
     public ResponseEntity<Void> deleteBlockuser(@PathVariable Long id) {
         log.debug("REST request to delete Blockuser : {}", id);
-        blockuserService.delete(id);
+
+        if (
+            SecurityUtils.hasCurrentUserThisAuthority(AuthoritiesConstants.USER) ||
+            SecurityUtils.hasCurrentUserThisAuthority(AuthoritiesConstants.ADMIN)
+        ) {
+            if (userRepository.findOneByLogin(SecurityUtils.getCurrentUserLogin().get()).isPresent()) {
+                Appuser loggedAppuser = appuserRepository.findByUserId(
+                    userRepository.findOneByLogin(SecurityUtils.getCurrentUserLogin().get()).get().getId()
+                );
+                if (
+                    (SecurityUtils.hasCurrentUserThisAuthority(AuthoritiesConstants.USER)) ||
+                    (SecurityUtils.hasCurrentUserThisAuthority(AuthoritiesConstants.ADMIN))
+                ) {
+                    BlockuserDTO blockuserDTO = blockuserService.findOne(id).orElse(new BlockuserDTO());
+
+                    if (blockuserDTO.getBlockeduser() != null) {
+                        if (blockuserDTO.getBlockeduser().getId().equals(loggedAppuser.getId())) {
+                            blockuserService.delete(id);
+                            log.debug("Follow DTO to delete, belongs to current user: {}", blockuserDTO.toString());
+                            log.debug("Follow DTO to delete, belongs to Appuser: {}", loggedAppuser.getId());
+                        }
+                    } else if (blockuserDTO.getCblockeduser() != null) {
+                        List<CommunityDTO> listCommunities;
+                        CommunityCriteria loggedCriteria = new CommunityCriteria();
+                        LongFilter longFilter = new LongFilter();
+                        loggedCriteria.setAppuserId((LongFilter) longFilter.setEquals(loggedAppuser.getId()));
+                        listCommunities = communityQueryService.findByCriteria(loggedCriteria);
+
+                        for (CommunityDTO communityDTO : listCommunities) {
+                            if (blockuserDTO.getCblockeduser().getId().equals(communityDTO.getId())) {
+                                blockuserService.delete(id);
+                                log.debug("Follow DTO to delete, belongs to current user: {}", blockuserDTO.toString());
+                                log.debug("Follow DTO to delete, belongs to Appuser: {}", loggedAppuser.getId());
+                            }
+                        }
+                    } else {
+                        log.debug("Follow DTO to delete, IS EMPTY, check it out!");
+                    }
+                }
+            }
+        }
+
         return ResponseEntity
             .noContent()
             .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
