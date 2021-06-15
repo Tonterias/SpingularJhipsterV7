@@ -21,6 +21,12 @@ export interface IAppuser {
   linkedin?: string | null;
   instagram?: string | null;
   birthdate?: dayjs.Dayjs | null;
+
+  userFirstName?: string | null;
+  userLastName?: string | null;
+  appPhotoImage?: string | null;
+  appPhotoImageContentType?: string | null;
+
   user?: IUser;
   blogs?: IBlog[] | null;
   communities?: ICommunity[] | null;
@@ -47,6 +53,12 @@ export class Appuser implements IAppuser {
     public linkedin?: string | null,
     public instagram?: string | null,
     public birthdate?: dayjs.Dayjs | null,
+
+    public userFirstName?: string | null,
+    public userLastName?: string | null,
+    public appPhotoImage?: string | null,
+    public appPhotoImageContentType?: string | null,
+
     public user?: IUser,
     public blogs?: IBlog[] | null,
     public communities?: ICommunity[] | null,

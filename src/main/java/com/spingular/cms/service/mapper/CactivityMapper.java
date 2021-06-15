@@ -10,7 +10,7 @@ import org.mapstruct.*;
  */
 @Mapper(componentModel = "spring", uses = { CommunityMapper.class })
 public interface CactivityMapper extends EntityMapper<CactivityDTO, Cactivity> {
-    @Mapping(target = "communities", source = "communities", qualifiedByName = "idSet")
+    @Mapping(target = "communities", source = "communities", qualifiedByName = "id")
     CactivityDTO toDto(Cactivity s);
 
     @Mapping(target = "removeCommunity", ignore = true)

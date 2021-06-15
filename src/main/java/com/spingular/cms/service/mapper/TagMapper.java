@@ -10,7 +10,7 @@ import org.mapstruct.*;
  */
 @Mapper(componentModel = "spring", uses = { PostMapper.class })
 public interface TagMapper extends EntityMapper<TagDTO, Tag> {
-    @Mapping(target = "posts", source = "posts", qualifiedByName = "headlineSet")
+    @Mapping(target = "posts", source = "posts", qualifiedByName = "id")
     TagDTO toDto(Tag s);
 
     @Mapping(target = "removePost", ignore = true)

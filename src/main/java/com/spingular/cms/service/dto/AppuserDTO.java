@@ -3,6 +3,7 @@ package com.spingular.cms.service.dto;
 import java.io.Serializable;
 import java.time.Instant;
 import java.util.Objects;
+import javax.persistence.Lob;
 import javax.validation.constraints.*;
 
 /**
@@ -33,6 +34,15 @@ public class AppuserDTO implements Serializable {
     private Instant birthdate;
 
     private UserDTO user;
+
+    private String userFirstName;
+
+    private String userLastName;
+
+    @Lob
+    private byte[] appPhotoImage;
+
+    private String appPhotoImageContentType;
 
     public Long getId() {
         return id;
@@ -106,6 +116,38 @@ public class AppuserDTO implements Serializable {
         this.user = user;
     }
 
+    public String getUserFirstName() {
+        return userFirstName;
+    }
+
+    public void setUserFirstName(String userFirstName) {
+        this.userFirstName = userFirstName;
+    }
+
+    public String getUserLastName() {
+        return userLastName;
+    }
+
+    public void setUserLastName(String userLastName) {
+        this.userLastName = userLastName;
+    }
+
+    public byte[] getAppPhotoImage() {
+        return appPhotoImage;
+    }
+
+    public void setAppPhotoImage(byte[] appPhotoImage) {
+        this.appPhotoImage = appPhotoImage;
+    }
+
+    public String getAppPhotoImageContentType() {
+        return appPhotoImageContentType;
+    }
+
+    public void setAppPhotoImageContentType(String appPhotoImageContentType) {
+        this.appPhotoImageContentType = appPhotoImageContentType;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -130,16 +172,10 @@ public class AppuserDTO implements Serializable {
     // prettier-ignore
     @Override
     public String toString() {
-        return "AppuserDTO{" +
-            "id=" + getId() +
-            ", creationDate='" + getCreationDate() + "'" +
-            ", bio='" + getBio() + "'" +
-            ", facebook='" + getFacebook() + "'" +
-            ", twitter='" + getTwitter() + "'" +
-            ", linkedin='" + getLinkedin() + "'" +
-            ", instagram='" + getInstagram() + "'" +
-            ", birthdate='" + getBirthdate() + "'" +
-            ", user=" + getUser() +
-            "}";
+        return "AppuserDTO{" + "id=" + getId() + ", userFirstName='" + getUserFirstName() + "'" + ", userLastName='"
+                + getUserLastName() + "'" + ", creationDate='" + getCreationDate() + "'" + ", appPhotoImage='" + getAppPhotoImage()
+                + "'" + ", appPhotoImageContentType='" + getAppPhotoImageContentType() + "'" + ", bio='" + getBio() + "'" + ", facebook='" + getFacebook() + "'" + ", twitter='" + getTwitter()
+                + "'" + ", linkedin='" + getLinkedin() + "'" + ", instagram='" + getInstagram() + "'" + ", birthdate='"
+                + getBirthdate() + "'" + ", user=" + getUser() + "}";
     }
 }

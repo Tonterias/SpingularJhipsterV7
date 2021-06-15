@@ -26,6 +26,8 @@
       "instagram": "Instagram",
       "birthdate": "Birthdate",
       "user": "User",
+      "userFirstName": "User First Name",
+      "userLastName": "User Last Name",
       "blog": "Blog",
       "community": "Community",
       "notification": "Notification",

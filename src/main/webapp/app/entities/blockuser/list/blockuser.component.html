@@ -61,21 +61,109 @@
             <div *ngIf="blockuser.blockeduser">
               <a [routerLink]="['/appuser', blockuser.blockeduser?.id, 'view']">{{ blockuser.blockeduser?.id }}</a>
             </div>
+
+            <!-- Additional AppUser information -->
+            <dt><span jhiTranslate="spingularApp.appuser.userFirstName">Blockeduser First Name</span></dt>
+            <dd>
+              <span>{{ blockuser.blockeduser?.userFirstName }}</span>
+            </dd>
+            <dt><span jhiTranslate="spingularApp.appuser.userLastName">Blockeduser Last Name</span></dt>
+            <dd>
+              <span>{{ blockuser.blockeduser?.userLastName }}</span>
+            </dd>
+            <dt><span jhiTranslate="spingularApp.appphoto.image">Image</span></dt>
+            <dd>
+              <div *ngIf="blockuser.blockeduser?.appPhotoImage">
+                <a (click)="openFile(blockuser.blockeduser?.appPhotoImage!, blockuser.blockeduser?.appPhotoImageContentType!)">
+                  <img
+                    [src]="'data:' + blockuser.blockeduser?.appPhotoImageContentType + ';base64,' + blockuser.blockeduser?.appPhotoImage"
+                    style="max-width: 100%"
+                    alt="blockeduserImage"
+                  />
+                </a>
+                {{ blockuser.blockeduser?.appPhotoImageContentType! }}, {{ byteSize(blockuser.blockeduser?.appPhotoImage!) }}
+              </div>
+            </dd>
+            <!-- END: Additional AppUser information -->
           </td>
           <td>
             <div *ngIf="blockuser.blockinguser">
               <a [routerLink]="['/appuser', blockuser.blockinguser?.id, 'view']">{{ blockuser.blockinguser?.id }}</a>
             </div>
+
+            <!-- Additional AppUser information -->
+            <dt><span jhiTranslate="spingularApp.appuser.userFirstName">Blockinguser First Name</span></dt>
+            <dd>
+              <span>{{ blockuser.blockinguser?.userFirstName }}</span>
+            </dd>
+            <dt><span jhiTranslate="spingularApp.appuser.userLastName">Blockinguser Last Name</span></dt>
+            <dd>
+              <span>{{ blockuser.blockinguser?.userLastName }}</span>
+            </dd>
+            <dt><span jhiTranslate="spingularApp.appphoto.image">Image</span></dt>
+            <dd>
+              <div *ngIf="blockuser.blockinguser?.appPhotoImage">
+                <a (click)="openFile(blockuser.blockinguser?.appPhotoImage!, blockuser.blockinguser?.appPhotoImageContentType!)">
+                  <img
+                    [src]="'data:' + blockuser.blockinguser?.appPhotoImageContentType + ';base64,' + blockuser.blockinguser?.appPhotoImage"
+                    style="max-width: 100%"
+                    alt="blockinguserImage"
+                  />
+                </a>
+                {{ blockuser.blockinguser?.appPhotoImageContentType! }}, {{ byteSize(blockuser.blockinguser?.appPhotoImage!) }}
+              </div>
+            </dd>
+            <!-- END: Additional AppUser information -->
           </td>
           <td>
             <div *ngIf="blockuser.cblockeduser">
               <a [routerLink]="['/community', blockuser.cblockeduser?.id, 'view']">{{ blockuser.cblockeduser?.id }}</a>
             </div>
+
+            <!-- Additional AppUser information -->
+            <dt><span jhiTranslate="spingularApp.blockuser.cblockeduser">Community Name</span></dt>
+            <dd>
+              <span>{{ blockuser.cblockeduser?.communityName }}</span>
+            </dd>
+            <dt><span jhiTranslate="spingularApp.appphoto.image">Image</span></dt>
+            <dd>
+              <div *ngIf="blockuser.cblockeduser?.image">
+                <a (click)="openFile(blockuser.cblockeduser?.image!, blockuser.cblockeduser?.imageContentType!)">
+                  <img
+                    [src]="'data:' + blockuser.cblockeduser?.imageContentType + ';base64,' + blockuser.cblockeduser?.image"
+                    style="max-width: 100%"
+                    alt="cblockeduserImage"
+                  />
+                </a>
+                {{ blockuser.cblockeduser?.imageContentType! }}, {{ byteSize(blockuser.cblockeduser?.image!) }}
+              </div>
+            </dd>
+            <!-- END: Additional AppUser information -->
           </td>
           <td>
             <div *ngIf="blockuser.cblockinguser">
               <a [routerLink]="['/community', blockuser.cblockinguser?.id, 'view']">{{ blockuser.cblockinguser?.id }}</a>
             </div>
+
+            <!-- Additional AppUser information -->
+            <dt><span jhiTranslate="spingularApp.blockuser.cblockinguser">Community Name</span></dt>
+            <dd>
+              <span>{{ blockuser.cblockinguser?.communityName }}</span>
+            </dd>
+            <dt><span jhiTranslate="spingularApp.appphoto.image">Image</span></dt>
+            <dd>
+              <div *ngIf="blockuser.cblockinguser?.image">
+                <a (click)="openFile(blockuser.cblockinguser?.image!, blockuser.cblockinguser?.imageContentType!)">
+                  <img
+                    [src]="'data:' + blockuser.cblockinguser?.imageContentType + ';base64,' + blockuser.cblockinguser?.image"
+                    style="max-width: 100%"
+                    alt="cblockinguserImage"
+                  />
+                </a>
+                {{ blockuser.cblockinguser?.imageContentType! }}, {{ byteSize(blockuser.cblockinguser?.image!) }}
+              </div>
+            </dd>
+            <!-- END: Additional AppUser information -->
           </td>
           <td class="text-right">
             <div class="btn-group">

@@ -61,21 +61,109 @@
             <div *ngIf="follow.followed">
               <a [routerLink]="['/appuser', follow.followed?.id, 'view']">{{ follow.followed?.id }}</a>
             </div>
+
+            <!-- Additional AppUser information -->
+            <dt><span jhiTranslate="spingularApp.appuser.userFirstName">UserFirstName</span></dt>
+            <dd>
+              <span>{{ follow.followed?.userFirstName }}</span>
+            </dd>
+            <dt><span jhiTranslate="spingularApp.appuser.userLastName">UserLastName</span></dt>
+            <dd>
+              <span>{{ follow.followed?.userLastName }}</span>
+            </dd>
+            <dt><span jhiTranslate="spingularApp.appphoto.image">Image</span></dt>
+            <dd>
+              <div *ngIf="follow.followed?.appPhotoImage">
+                <a (click)="openFile(follow.followed?.appPhotoImage!, follow.followed?.appPhotoImageContentType!)">
+                  <img
+                    [src]="'data:' + follow.followed?.appPhotoImageContentType + ';base64,' + follow.followed?.appPhotoImage"
+                    style="max-width: 100%"
+                    alt="followed?.appPhotoImage"
+                  />
+                </a>
+                {{ follow.followed?.appPhotoImageContentType! }}, {{ byteSize(follow.followed?.appPhotoImage!) }}
+              </div>
+            </dd>
+            <!-- END: Additional AppUser information -->
           </td>
           <td>
             <div *ngIf="follow.following">
               <a [routerLink]="['/appuser', follow.following?.id, 'view']">{{ follow.following?.id }}</a>
             </div>
+
+            <!-- Additional AppUser information -->
+            <dt><span jhiTranslate="spingularApp.appuser.userFirstName">UserFirstName</span></dt>
+            <dd>
+              <span>{{ follow.following?.userFirstName }}</span>
+            </dd>
+            <dt><span jhiTranslate="spingularApp.appuser.userLastName">UserLastName</span></dt>
+            <dd>
+              <span>{{ follow.following?.userLastName }}</span>
+            </dd>
+            <dt><span jhiTranslate="spingularApp.appphoto.image">Image</span></dt>
+            <dd>
+              <div *ngIf="follow.following?.appPhotoImage">
+                <a (click)="openFile(follow.following?.appPhotoImage!, follow.following?.appPhotoImageContentType!)">
+                  <img
+                    [src]="'data:' + follow.following?.appPhotoImageContentType + ';base64,' + follow.following?.appPhotoImage"
+                    style="max-width: 100%"
+                    alt="followingImage"
+                  />
+                </a>
+                {{ follow.following?.appPhotoImageContentType! }}, {{ byteSize(follow.following?.appPhotoImage!) }}
+              </div>
+            </dd>
+            <!-- END: Additional AppUser information -->
           </td>
           <td>
             <div *ngIf="follow.cfollowed">
               <a [routerLink]="['/community', follow.cfollowed?.id, 'view']">{{ follow.cfollowed?.id }}</a>
             </div>
+
+            <!-- Additional AppUser information -->
+            <dt><span jhiTranslate="spingularApp.follow.cfollowed">Community Name</span></dt>
+            <dd>
+              <span>{{ follow.cfollowed?.communityName }}</span>
+            </dd>
+            <dt><span jhiTranslate="spingularApp.appphoto.image">Image</span></dt>
+            <dd>
+              <div *ngIf="follow.cfollowed?.image">
+                <a (click)="openFile(follow.cfollowed?.image!, follow.cfollowed?.imageContentType!)">
+                  <img
+                    [src]="'data:' + follow.cfollowed?.imageContentType + ';base64,' + follow.cfollowed?.image"
+                    style="max-width: 100%"
+                    alt="cfollowedImage"
+                  />
+                </a>
+                {{ follow.cfollowed?.imageContentType! }}, {{ byteSize(follow.cfollowed?.image!) }}
+              </div>
+            </dd>
+            <!-- END: Additional AppUser information -->
           </td>
           <td>
             <div *ngIf="follow.cfollowing">
               <a [routerLink]="['/community', follow.cfollowing?.id, 'view']">{{ follow.cfollowing?.id }}</a>
             </div>
+
+            <!-- Additional AppUser information -->
+            <dt><span jhiTranslate="spingularApp.follow.cfollowing">Community Name</span></dt>
+            <dd>
+              <span>{{ follow.cfollowing?.communityName }}</span>
+            </dd>
+            <dt><span jhiTranslate="spingularApp.appphoto.image">Image</span></dt>
+            <dd>
+              <div *ngIf="follow.cfollowing?.image">
+                <a (click)="openFile(follow.cfollowing?.image!, follow.cfollowing?.imageContentType!)">
+                  <img
+                    [src]="'data:' + follow.cfollowing?.imageContentType + ';base64,' + follow.cfollowing?.image"
+                    style="max-width: 100%"
+                    alt="cfollowingImage"
+                  />
+                </a>
+                {{ follow.cfollowing?.imageContentType! }}, {{ byteSize(follow.cfollowing?.image!) }}
+              </div>
+            </dd>
+            <!-- END: Additional AppUser information -->
           </td>
           <td class="text-right">
             <div class="btn-group">

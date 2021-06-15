@@ -9,7 +9,7 @@ import org.mapstruct.*;
  */
 @Mapper(componentModel = "spring", uses = { AppuserMapper.class, PostMapper.class })
 public interface CommentMapper extends EntityMapper<CommentDTO, Comment> {
-    @Mapping(target = "appuser", source = "appuser", qualifiedByName = "id")
+    @Mapping(target = "appuser", source = "appuser")
     @Mapping(target = "post", source = "post", qualifiedByName = "id")
     CommentDTO toDto(Comment s);
 }

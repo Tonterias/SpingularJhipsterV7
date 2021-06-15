@@ -10,7 +10,7 @@ import org.mapstruct.*;
  */
 @Mapper(componentModel = "spring", uses = { AppuserMapper.class })
 public interface CommunityMapper extends EntityMapper<CommunityDTO, Community> {
-    @Mapping(target = "appuser", source = "appuser", qualifiedByName = "id")
+    @Mapping(target = "appuser", source = "appuser")
     CommunityDTO toDto(Community s);
 
     @Named("id")

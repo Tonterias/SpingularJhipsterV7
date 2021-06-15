@@ -46,6 +46,30 @@
         <dd>
           <span>{{ appuser.user?.id }}</span>
         </dd>
+
+        <!-- Additional AppUser information -->
+        <dt><span jhiTranslate="spingularApp.appuser.userFirstName">UserFirstName</span></dt>
+        <dd>
+          <span>{{ appuser.userFirstName }}</span>
+        </dd>
+        <dt><span jhiTranslate="spingularApp.appuser.userLastName">UserLastName</span></dt>
+        <dd>
+          <span>{{ appuser.userLastName }}</span>
+        </dd>
+        <dt><span jhiTranslate="spingularApp.appphoto.image">Image</span></dt>
+        <dd>
+          <div *ngIf="appuser.appPhotoImage">
+            <a (click)="openFile(appuser.appPhotoImage, appuser.appPhotoImageContentType)">
+              <img
+                [src]="'data:' + appuser.appPhotoImageContentType + ';base64,' + appuser.appPhotoImage"
+                style="max-width: 100%"
+                alt="appPhotoImage"
+              />
+            </a>
+            {{ appuser.appPhotoImageContentType }}, {{ byteSize(appuser.appPhotoImage) }}
+          </div>
+        </dd>
+        <!-- END: Additional AppUser information -->
       </dl>
 
       <button type="submit" (click)="previousState()" class="btn btn-info" data-cy="entityDetailsBackButton">

@@ -9,9 +9,9 @@ import org.mapstruct.*;
  */
 @Mapper(componentModel = "spring", uses = { AppuserMapper.class, CommunityMapper.class })
 public interface FollowMapper extends EntityMapper<FollowDTO, Follow> {
-    @Mapping(target = "followed", source = "followed", qualifiedByName = "id")
-    @Mapping(target = "following", source = "following", qualifiedByName = "id")
-    @Mapping(target = "cfollowed", source = "cfollowed", qualifiedByName = "id")
-    @Mapping(target = "cfollowing", source = "cfollowing", qualifiedByName = "id")
+    @Mapping(target = "followed", source = "followed")
+    @Mapping(target = "following", source = "following")
+    @Mapping(target = "cfollowed", source = "cfollowed")
+    @Mapping(target = "cfollowing", source = "cfollowing")
     FollowDTO toDto(Follow s);
 }

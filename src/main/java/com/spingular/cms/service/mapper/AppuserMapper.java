@@ -8,9 +8,13 @@ import org.mapstruct.*;
 /**
  * Mapper for the entity {@link Appuser} and its DTO {@link AppuserDTO}.
  */
-@Mapper(componentModel = "spring", uses = { UserMapper.class })
+@Mapper(componentModel = "spring", uses = { UserMapper.class, AppphotoMapper.class })
 public interface AppuserMapper extends EntityMapper<AppuserDTO, Appuser> {
     @Mapping(target = "user", source = "user", qualifiedByName = "id")
+    @Mapping(source = "user.firstName", target = "userFirstName")
+    @Mapping(source = "user.lastName", target = "userLastName")
+    @Mapping(source = "appphoto.image", target = "appPhotoImage")
+    @Mapping(source = "appphoto.imageContentType", target = "appPhotoImageContentType")
     AppuserDTO toDto(Appuser s);
 
     @Named("id")

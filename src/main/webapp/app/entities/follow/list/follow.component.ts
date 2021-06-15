@@ -10,6 +10,8 @@ import { ITEMS_PER_PAGE } from 'app/config/pagination.constants';
 import { FollowService } from '../service/follow.service';
 import { FollowDeleteDialogComponent } from '../delete/follow-delete-dialog.component';
 
+import { DataUtils } from 'app/core/util/data-util.service';
+
 @Component({
   selector: 'jhi-follow',
   templateUrl: './follow.component.html',
@@ -28,7 +30,8 @@ export class FollowComponent implements OnInit {
     protected followService: FollowService,
     protected activatedRoute: ActivatedRoute,
     protected router: Router,
-    protected modalService: NgbModal
+    protected modalService: NgbModal,
+    protected dataUtils: DataUtils
   ) {}
 
   loadPage(page?: number, dontNavigate?: boolean): void {
@@ -70,6 +73,14 @@ export class FollowComponent implements OnInit {
         this.loadPage();
       }
     });
+  }
+
+  byteSize(base64String: string): string {
+    return this.dataUtils.byteSize(base64String);
+  }
+
+  openFile(base64String: string, contentType: string | null | undefined): void {
+    this.dataUtils.openFile(base64String, contentType);
   }
 
   protected sort(): string[] {

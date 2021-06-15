@@ -10,7 +10,7 @@ import org.mapstruct.*;
  */
 @Mapper(componentModel = "spring", uses = { AppuserMapper.class })
 public interface InterestMapper extends EntityMapper<InterestDTO, Interest> {
-    @Mapping(target = "appusers", source = "appusers", qualifiedByName = "idSet")
+    @Mapping(target = "appusers", source = "appusers", qualifiedByName = "id")
     InterestDTO toDto(Interest s);
 
     @Mapping(target = "removeAppuser", ignore = true)

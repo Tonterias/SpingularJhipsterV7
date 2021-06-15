@@ -10,7 +10,7 @@ import org.mapstruct.*;
  */
 @Mapper(componentModel = "spring", uses = { PostMapper.class })
 public interface TopicMapper extends EntityMapper<TopicDTO, Topic> {
-    @Mapping(target = "posts", source = "posts", qualifiedByName = "headlineSet")
+    @Mapping(target = "posts", source = "posts", qualifiedByName = "id")
     TopicDTO toDto(Topic s);
 
     @Mapping(target = "removePost", ignore = true)

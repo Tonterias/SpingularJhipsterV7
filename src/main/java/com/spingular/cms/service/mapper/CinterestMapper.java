@@ -10,7 +10,7 @@ import org.mapstruct.*;
  */
 @Mapper(componentModel = "spring", uses = { CommunityMapper.class })
 public interface CinterestMapper extends EntityMapper<CinterestDTO, Cinterest> {
-    @Mapping(target = "communities", source = "communities", qualifiedByName = "idSet")
+    @Mapping(target = "communities", source = "communities", qualifiedByName = "id")
     CinterestDTO toDto(Cinterest s);
 
     @Mapping(target = "removeCommunity", ignore = true)

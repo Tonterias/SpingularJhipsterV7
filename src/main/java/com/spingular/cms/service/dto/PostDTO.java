@@ -3,6 +3,7 @@ package com.spingular.cms.service.dto;
 import java.io.Serializable;
 import java.time.Instant;
 import java.util.Objects;
+import java.util.Set;
 import javax.persistence.Lob;
 import javax.validation.constraints.*;
 
@@ -48,6 +49,10 @@ public class PostDTO implements Serializable {
     private AppuserDTO appuser;
 
     private BlogDTO blog;
+
+    private Set<CustomTagDTO> tags;
+
+    private Set<CustomTopicDTO> topics;
 
     public Long getId() {
         return id;
@@ -161,6 +166,22 @@ public class PostDTO implements Serializable {
         this.blog = blog;
     }
 
+    public Set<CustomTagDTO> getTags() {
+        return tags;
+    }
+
+    public void setTags(Set<CustomTagDTO> tags) {
+        this.tags = tags;
+    }
+
+    public Set<CustomTopicDTO> getTopics() {
+        return topics;
+    }
+
+    public void setTopics(Set<CustomTopicDTO> topics) {
+        this.topics = topics;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -199,6 +220,8 @@ public class PostDTO implements Serializable {
             ", image='" + getImage() + "'" +
             ", appuser=" + getAppuser() +
             ", blog=" + getBlog() +
+            ", tags=" + getTags() +
+            ", topics=" + getTopics() +
             "}";
     }
 }

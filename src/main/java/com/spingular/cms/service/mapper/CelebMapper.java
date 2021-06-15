@@ -10,7 +10,7 @@ import org.mapstruct.*;
  */
 @Mapper(componentModel = "spring", uses = { AppuserMapper.class })
 public interface CelebMapper extends EntityMapper<CelebDTO, Celeb> {
-    @Mapping(target = "appusers", source = "appusers", qualifiedByName = "idSet")
+    @Mapping(target = "appusers", source = "appusers", qualifiedByName = "id")
     CelebDTO toDto(Celeb s);
 
     @Mapping(target = "removeAppuser", ignore = true)

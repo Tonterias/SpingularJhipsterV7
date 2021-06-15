@@ -10,7 +10,7 @@ import org.mapstruct.*;
  */
 @Mapper(componentModel = "spring", uses = { CommunityMapper.class })
 public interface CcelebMapper extends EntityMapper<CcelebDTO, Cceleb> {
-    @Mapping(target = "communities", source = "communities", qualifiedByName = "idSet")
+    @Mapping(target = "communities", source = "communities", qualifiedByName = "id")
     CcelebDTO toDto(Cceleb s);
 
     @Mapping(target = "removeCommunity", ignore = true)
