@@ -1,12 +1,14 @@
 package com.spingular.cms.service;
 
+import com.spingular.cms.service.dto.CustomFrontpageconfigDTO;
 import com.spingular.cms.service.dto.FrontpageconfigDTO;
 import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 /**
- * Service Interface for managing {@link com.spingular.cms.domain.Frontpageconfig}.
+ * Service Interface for managing
+ * {@link com.spingular.cms.domain.Frontpageconfig}.
  */
 public interface FrontpageconfigService {
     /**
@@ -47,4 +49,12 @@ public interface FrontpageconfigService {
      * @param id the id of the entity.
      */
     void delete(Long id);
+
+    /**
+     * Get the "id" frontpageconfig, including posts.
+     *
+     * @param id the id of the entity
+     * @return the entity
+     */
+    Optional<CustomFrontpageconfigDTO> findOneIncludingPosts(Long id);
 }

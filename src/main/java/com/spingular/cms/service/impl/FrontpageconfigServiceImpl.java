@@ -3,7 +3,9 @@ package com.spingular.cms.service.impl;
 import com.spingular.cms.domain.Frontpageconfig;
 import com.spingular.cms.repository.FrontpageconfigRepository;
 import com.spingular.cms.service.FrontpageconfigService;
+import com.spingular.cms.service.dto.CustomFrontpageconfigDTO;
 import com.spingular.cms.service.dto.FrontpageconfigDTO;
+import com.spingular.cms.service.mapper.CustomFrontpageconfigMapper;
 import com.spingular.cms.service.mapper.FrontpageconfigMapper;
 import java.util.Optional;
 import org.slf4j.Logger;
@@ -26,9 +28,16 @@ public class FrontpageconfigServiceImpl implements FrontpageconfigService {
 
     private final FrontpageconfigMapper frontpageconfigMapper;
 
-    public FrontpageconfigServiceImpl(FrontpageconfigRepository frontpageconfigRepository, FrontpageconfigMapper frontpageconfigMapper) {
+    private final CustomFrontpageconfigMapper customFrontpageconfigMapper;
+
+    public FrontpageconfigServiceImpl(
+        FrontpageconfigRepository frontpageconfigRepository,
+        FrontpageconfigMapper frontpageconfigMapper,
+        CustomFrontpageconfigMapper customFrontpageconfigMapper
+    ) {
         this.frontpageconfigRepository = frontpageconfigRepository;
         this.frontpageconfigMapper = frontpageconfigMapper;
+        this.customFrontpageconfigMapper = customFrontpageconfigMapper;
     }
 
     @Override
@@ -73,5 +82,11 @@ public class FrontpageconfigServiceImpl implements FrontpageconfigService {
     public void delete(Long id) {
         log.debug("Request to delete Frontpageconfig : {}", id);
         frontpageconfigRepository.deleteById(id);
+    }
+
+    @Transactional(readOnly = true)
+    public Optional<CustomFrontpageconfigDTO> findOneIncludingPosts(Long id) {
+        log.debug("Request to get Frontpageconfig : {}", id);
+        return frontpageconfigRepository.findById(id).map(customFrontpageconfigMapper::toDto);
     }
 }

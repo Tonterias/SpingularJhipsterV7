@@ -1,23 +1,21 @@
 package com.spingular.cms.web.rest;
 
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
-
 import com.spingular.cms.repository.FrontpageconfigRepository;
 import com.spingular.cms.security.AuthoritiesConstants;
 import com.spingular.cms.security.SecurityUtils;
 import com.spingular.cms.service.FrontpageconfigQueryService;
 import com.spingular.cms.service.FrontpageconfigService;
 import com.spingular.cms.service.criteria.FrontpageconfigCriteria;
+import com.spingular.cms.service.dto.CustomFrontpageconfigDTO;
 import com.spingular.cms.service.dto.FrontpageconfigDTO;
 import com.spingular.cms.web.rest.errors.BadRequestAlertException;
-
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -35,7 +33,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-
 import tech.jhipster.web.util.HeaderUtil;
 import tech.jhipster.web.util.PaginationUtil;
 import tech.jhipster.web.util.ResponseUtil;
@@ -61,9 +58,11 @@ public class FrontpageconfigResource {
 
     private final FrontpageconfigQueryService frontpageconfigQueryService;
 
-    public FrontpageconfigResource(FrontpageconfigService frontpageconfigService,
-            FrontpageconfigRepository frontpageconfigRepository,
-            FrontpageconfigQueryService frontpageconfigQueryService) {
+    public FrontpageconfigResource(
+        FrontpageconfigService frontpageconfigService,
+        FrontpageconfigRepository frontpageconfigRepository,
+        FrontpageconfigQueryService frontpageconfigQueryService
+    ) {
         this.frontpageconfigService = frontpageconfigService;
         this.frontpageconfigRepository = frontpageconfigRepository;
         this.frontpageconfigQueryService = frontpageconfigQueryService;
@@ -79,12 +78,11 @@ public class FrontpageconfigResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PostMapping("/frontpageconfigs")
-    public ResponseEntity<FrontpageconfigDTO> createFrontpageconfig(
-            @Valid @RequestBody FrontpageconfigDTO frontpageconfigDTO) throws URISyntaxException {
+    public ResponseEntity<FrontpageconfigDTO> createFrontpageconfig(@Valid @RequestBody FrontpageconfigDTO frontpageconfigDTO)
+        throws URISyntaxException {
         log.debug("REST request to save Frontpageconfig : {}", frontpageconfigDTO);
         if (frontpageconfigDTO.getId() != null) {
-            throw new BadRequestAlertException("A new frontpageconfig cannot already have an ID", ENTITY_NAME,
-                    "idexists");
+            throw new BadRequestAlertException("A new frontpageconfig cannot already have an ID", ENTITY_NAME, "idexists");
         }
 
         // NOTE Only for Admins
@@ -95,9 +93,9 @@ public class FrontpageconfigResource {
         }
 
         return ResponseEntity
-                .created(new URI("/api/frontpageconfigs/" + result.getId())).headers(HeaderUtil
-                        .createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getId().toString()))
-                .body(result);
+            .created(new URI("/api/frontpageconfigs/" + result.getId()))
+            .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getId().toString()))
+            .body(result);
     }
 
     /**
@@ -114,8 +112,9 @@ public class FrontpageconfigResource {
      */
     @PutMapping("/frontpageconfigs/{id}")
     public ResponseEntity<FrontpageconfigDTO> updateFrontpageconfig(
-            @PathVariable(value = "id", required = false) final Long id,
-            @Valid @RequestBody FrontpageconfigDTO frontpageconfigDTO) throws URISyntaxException {
+        @PathVariable(value = "id", required = false) final Long id,
+        @Valid @RequestBody FrontpageconfigDTO frontpageconfigDTO
+    ) throws URISyntaxException {
         log.debug("REST request to update Frontpageconfig : {}, {}", id, frontpageconfigDTO);
         if (frontpageconfigDTO.getId() == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
@@ -135,8 +134,10 @@ public class FrontpageconfigResource {
             log.debug("Frontpageconfig DTO to create, belongs to current user: {}", frontpageconfigDTO.toString());
         }
 
-        return ResponseEntity.ok().headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME,
-                frontpageconfigDTO.getId().toString())).body(result);
+        return ResponseEntity
+            .ok()
+            .headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, frontpageconfigDTO.getId().toString()))
+            .body(result);
     }
 
     /**
@@ -155,8 +156,9 @@ public class FrontpageconfigResource {
      */
     @PatchMapping(value = "/frontpageconfigs/{id}", consumes = "application/merge-patch+json")
     public ResponseEntity<FrontpageconfigDTO> partialUpdateFrontpageconfig(
-            @PathVariable(value = "id", required = false) final Long id,
-            @NotNull @RequestBody FrontpageconfigDTO frontpageconfigDTO) throws URISyntaxException {
+        @PathVariable(value = "id", required = false) final Long id,
+        @NotNull @RequestBody FrontpageconfigDTO frontpageconfigDTO
+    ) throws URISyntaxException {
         log.debug("REST request to partial update Frontpageconfig partially : {}, {}", id, frontpageconfigDTO);
         if (frontpageconfigDTO.getId() == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
@@ -173,12 +175,13 @@ public class FrontpageconfigResource {
         Optional<FrontpageconfigDTO> result = frontpageconfigService.findOne(id);
         if (SecurityUtils.hasCurrentUserThisAuthority(AuthoritiesConstants.ADMIN)) {
             result = frontpageconfigService.partialUpdate(frontpageconfigDTO);
-            log.debug("Frontpageconfig DTO to partial update, belongs to current user: {}",
-                    frontpageconfigService.toString());
+            log.debug("Frontpageconfig DTO to partial update, belongs to current user: {}", frontpageconfigService.toString());
         }
 
-        return ResponseUtil.wrapOrNotFound(result, HeaderUtil.createEntityUpdateAlert(applicationName, true,
-                ENTITY_NAME, frontpageconfigDTO.getId().toString()));
+        return ResponseUtil.wrapOrNotFound(
+            result,
+            HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, frontpageconfigDTO.getId().toString())
+        );
     }
 
     /**
@@ -190,21 +193,18 @@ public class FrontpageconfigResource {
      *         of frontpageconfigs in body.
      */
     @GetMapping("/frontpageconfigs")
-    public ResponseEntity<List<FrontpageconfigDTO>> getAllFrontpageconfigs(FrontpageconfigCriteria criteria,
-            Pageable pageable) {
+    public ResponseEntity<List<FrontpageconfigDTO>> getAllFrontpageconfigs(FrontpageconfigCriteria criteria, Pageable pageable) {
         log.debug("REST request to get Frontpageconfigs by criteria: {}", criteria);
 
         // NOTE Only for Admins
         if (SecurityUtils.hasCurrentUserThisAuthority(AuthoritiesConstants.ADMIN)) {
             Page<FrontpageconfigDTO> page = frontpageconfigQueryService.findByCriteria(criteria, pageable);
 
-            HttpHeaders headers = PaginationUtil
-                    .generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
+            HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
             return ResponseEntity.ok().headers(headers).body(page.getContent());
         }
 
         return ResponseUtil.wrapOrNotFound(null);
-
     }
 
     /**
@@ -255,8 +255,23 @@ public class FrontpageconfigResource {
             frontpageconfigService.delete(id);
         }
 
-        return ResponseEntity.noContent()
-                .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
-                .build();
+        return ResponseEntity
+            .noContent()
+            .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
+            .build();
+    }
+
+    /**
+     * GET  /frontpageconfigs/:id/posts : get the "id" frontpageconfig, including posts
+     *
+     * @param id the id of the frontpageconfigDTO to retrieve
+     * @return the ResponseEntity with status 200 (OK) and with body the frontpageconfigDTO, or with status 404 (Not Found)
+     */
+    @GetMapping("/frontpageconfigs/{id}/posts")
+    // @Timed
+    public ResponseEntity<CustomFrontpageconfigDTO> getFrontpageconfigIncludingPosts(@PathVariable Long id) {
+        log.debug("REST request to get Frontpageconfig : {}", id);
+        Optional<CustomFrontpageconfigDTO> frontpageconfigDTO = frontpageconfigService.findOneIncludingPosts(id);
+        return ResponseUtil.wrapOrNotFound(frontpageconfigDTO);
     }
 }
